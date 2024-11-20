@@ -4,6 +4,14 @@ PHPNomad's primary purpose is to create code that's both easy to read and simple
 platform-agnostic. By focusing on clear, modular design, PHPNomad allows developers to build code that works
 consistently across various environments, making it adaptable without added complexity.
 
+## What is PHPNomad?
+
+Think of PHPNomad as a way to write code that can easily move between different PHP systems. Whether you're building a
+WordPress plugin, a Laravel application, or a homegrown MVC service, PHPNomad helps make your code portable and adaptable.
+
+The name comes from the idea that your code should be able to travel and adapt, just like a digital nomad who can
+work from anywhere.
+
 ## Why PHPNomad?
 
 ### Eliminate Context Switching
