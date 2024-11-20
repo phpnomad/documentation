@@ -7,7 +7,8 @@ adapt seamlessly, as if it’s just visiting.
 
 PHPNomad takes a "nomadic" approach: instead of the platform dictating how your application is built, your application
 integrates with the platform through lightweight, modular adapters. This perspective keeps your application’s core logic
-clean and reusable, whether you’re bootstrapping a WordPress plugin or setting up a Laravel service provider.
+clean and reusable, whether you’re bootstrapping a WordPress plugin or setting up a Laravel service provider, or maybe
+even building your own homegrown MVC system that uses PHPNomad.
 
 ## Core Principles for Platform-Specific Integrations
 
