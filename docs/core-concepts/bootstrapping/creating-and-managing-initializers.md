@@ -1,10 +1,14 @@
 # Creating and Managing Initializers
 
-Initializers are the building blocks of a PHPNomad application. Think of them as specialized workers, each with a specific job to do when your application starts up. Each initializer handles one aspect of getting your application ready to run - whether that's setting up database connections, loading configuration files, or connecting to external services.
+Initializers are the building blocks of a PHPNomad application. Think of them as specialized workers, each with a
+specific job to do when your application starts up. Each initializer handles one aspect of getting your application
+ready to run - whether that's setting up database connections, loading configuration files, or connecting to external
+services.
 
 ## What Makes Up an Initializer?
 
-At its simplest, an initializer is a PHP class that implements one or more special interfaces. These interfaces tell PHPNomad what the application can do:
+At its simplest, an initializer is a PHP class that implements one or more special interfaces. These interfaces tell
+PHPNomad what the application can do:
 
 ```php
 class MyInitializer implements HasClassDefinitions 
@@ -32,7 +36,9 @@ PHPNomad supports several interfaces that give initializers different capabiliti
 ## Types of Initializers
 
 ### Shared Initializers
-These initializers contain core business logic that works anywhere. They should never know about specific platforms - their job is to set up the fundamental pieces of your application:
+
+These initializers contain core business logic that works anywhere. They should never know about specific platforms -
+their job is to set up the fundamental pieces of your application:
 
 ```php
 class EmailServiceInitializer implements HasClassDefinitions
@@ -50,7 +56,9 @@ class EmailServiceInitializer implements HasClassDefinitions
 ```
 
 ### Platform Integration Initializers
-These initializers handle adapting your application for specific platforms. Instead of adding platform checks to our shared initializers, we create separate initializers that focus solely on platform integration:
+
+These initializers handle adapting your application for specific platforms. Instead of adding platform checks to our
+shared initializers, we create separate initializers that focus solely on platform integration:
 
 ```php
 class WordPressEmailIntegration implements HasClassDefinitions
@@ -66,6 +74,7 @@ class WordPressEmailIntegration implements HasClassDefinitions
 ```
 
 ### Event-Driven Initializers
+
 Many initializers work with events to set up listeners and bindings:
 
 ```php
@@ -88,9 +97,12 @@ class UserEventsInitializer implements HasEventBindings
 ## Best Practices
 
 ### Keep It Focused
-Each initializer should do one thing and do it well. If you find your initializer handling multiple unrelated tasks, it's time to split it up.
+
+Each initializer should do one thing and do it well. If you find your initializer handling multiple unrelated tasks,
+it's time to split it up.
 
 Good:
+
 ```php
 class EmailServiceInitializer implements HasClassDefinitions
 {
@@ -104,6 +116,7 @@ class EmailServiceInitializer implements HasClassDefinitions
 ```
 
 Not so good:
+
 ```php
 class ServiceInitializer implements HasClassDefinitions
 {
@@ -120,6 +133,7 @@ class ServiceInitializer implements HasClassDefinitions
 ```
 
 ### Handle Dependencies Wisely
+
 Let the container manage dependencies instead of creating them directly:
 
 ```php
@@ -139,6 +153,7 @@ class UserServiceInitializer implements Loadable, CanSetContainer
 ## Common Patterns
 
 ### Setting Up Services
+
 Register your services with the container:
 
 ```php
@@ -161,6 +176,7 @@ class ServiceInitializer implements HasClassDefinitions
 ```
 
 ### Event Listeners
+
 Set up event listeners in your initializer:
 
 ```php
@@ -180,6 +196,7 @@ class EventInitializer implements HasListeners
 ```
 
 ### Mutations
+
 Register mutation handlers for transforming data:
 
 ```php
@@ -249,6 +266,10 @@ class WordPressAuthIntegration implements HasClassDefinitions
 }
 ```
 
-Remember, good initializers are like good tools - they do one job well, work reliably, and make your life easier. By following these patterns and practices, you'll build a foundation that's easy to maintain and adapt as your needs change.
+Remember, good initializers are like good tools - they do one job well, work reliably, and make your life easier. By
+following these patterns and practices, you'll build a foundation that's easy to maintain and adapt as your needs
+change.
 
-The key to success with PHPNomad initializers is maintaining a clear separation between your core business logic and platform-specific integrations. This separation allows your application to remain truly portable while still integrating smoothly with any platform you need to support.
+The key to success with PHPNomad initializers is maintaining a clear separation between your core business logic and
+platform-specific integrations. This separation allows your application to remain truly portable while still integrating
+smoothly with any platform you need to support.

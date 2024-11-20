@@ -1,10 +1,12 @@
 # Advanced Bootstrapping Patterns
 
-When your application grows, you might need more sophisticated ways to organize how it starts up. This guide will show you how to handle more complex bootstrapping scenarios in PHPNomad.
+When your application grows, you might need more sophisticated ways to organize how it starts up. This guide will show
+you how to handle more complex bootstrapping scenarios in PHPNomad.
 
 ## Breaking Things into Groups
 
-Just like you might organize your clothes into different drawers, you can organize your application's startup code into logical groups. This makes everything easier to manage and understand.
+Just like you might organize your clothes into different drawers, you can organize your application's startup code into
+logical groups. This makes everything easier to manage and understand.
 
 Here's a simple example:
 
@@ -32,7 +34,8 @@ $authBootstrapper->load();
 
 ## Using Factories for Reusability
 
-Sometimes you'll want to reuse the same group of initializers in different places. Factories are a great way to package up these groups so they're easy to reuse:
+Sometimes you'll want to reuse the same group of initializers in different places. Factories are a great way to package
+up these groups so they're easy to reuse:
 
 ```php
 class DatabaseBootstrapperFactory 
@@ -63,7 +66,8 @@ $bootstrapper->load();
 
 ## Conditional Bootstrapping
 
-Sometimes you need different initialization based on your environment or other conditions. Here's how you might handle that:
+Sometimes you need different initialization based on your environment or other conditions. Here's how you might handle
+that:
 
 ```php
 class ConditionalBootstrapper 
@@ -167,7 +171,8 @@ class PluginBootstrapperFactory
 
 3. **Stay Flexible**: Design your bootstrapping code so it's easy to add or remove features without breaking things.
 
-4. **Think About Order**: Sometimes the order of initialization matters. Group your bootstrappers accordingly and document any important ordering requirements.
+4. **Think About Order**: Sometimes the order of initialization matters. Group your bootstrappers accordingly and
+   document any important ordering requirements.
 
 ## Common Patterns to Avoid
 
@@ -179,6 +184,9 @@ class PluginBootstrapperFactory
 
 ## Summary
 
-Advanced bootstrapping patterns help you manage complex applications while keeping your code organized and maintainable. By using groups, factories, and conditional loading, you can create a flexible system that grows with your needs while staying clean and understandable.
+Advanced bootstrapping patterns help you manage complex applications while keeping your code organized and maintainable.
+By using groups, factories, and conditional loading, you can create a flexible system that grows with your needs while
+staying clean and understandable.
 
-Remember: The goal is to make your initialization process clear and maintainable, not to make it clever or complex. When in doubt, choose the simpler approach.
+Remember: The goal is to make your initialization process clear and maintainable, not to make it clever or complex. When
+in doubt, choose the simpler approach.
