@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <link rel="stylesheet" href="/public/assets/pico.min.css">
+    <link rel="stylesheet" href="/public/assets/prism.css">
+    <link rel="stylesheet" href="/public/assets/style.css">
+    <script src="/public/assets/prism.js"></script>
+</head>
+<body>
+<header>
+    <nav>
+    <a href="https://www.github.com/phpnomad">GitHub</a>
+</nav></header>
+
+<div class="docs-layout">
+    <aside class="docs-sidebar">
+                    <a href="/"><img src="/public/assets/logo.png" alt="PHPNomad Logo"/></a>
+            <nav>
+    
+                                        <details class="nav-section" >
+                    <summary>
+                                                    Packages
+                                            </summary>
+                    <div class="nav-group">
+                                                            <details class="nav-section" >
+                    <summary>
+                                                    Utils
+                                            </summary>
+                    <div class="nav-group">
+                                                            <details class="nav-section" >
+                    <summary>
+                                                    Processors
+                                            </summary>
+                    <div class="nav-group">
+                                                            <div class="nav-item">
+                    <a href="/packages/utils/processors/list-sorter" class="">
+                        List sorter
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/packages/utils/processors/array-processor" class="">
+                        Array processor
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/packages/utils/processors/list-filter" class="">
+                        List filter
+                    </a>
+                </div>
+                        
+                    </div>
+                </details>
+                                                <div class="nav-item">
+                    <a href="/packages/utils/array-helper" class="">
+                        Array helper
+                    </a>
+                </div>
+                        
+                    </div>
+                </details>
+                        
+                    </div>
+                </details>
+                                                <details class="nav-section" open>
+                    <summary>
+                                                    Core concepts
+                                            </summary>
+                    <div class="nav-group">
+                                                            <details class="nav-section" open>
+                    <summary>
+                                                    Bootstrapping
+                                            </summary>
+                    <div class="nav-group">
+                                                            <div class="nav-item">
+                    <a href="/core-concepts/bootstrapping/platform-integrations" class="">
+                        Platform integrations
+                    </a>
+                </div>
+                                                <details class="nav-section" >
+                    <summary>
+                                                    Initializers
+                                            </summary>
+                    <div class="nav-group">
+                                                            <div class="nav-item">
+                    <a href="/core-concepts/bootstrapping/initializers/event-listeners" class="">
+                        Event listeners
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/core-concepts/bootstrapping/initializers/event-binding" class="">
+                        Event binding
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/core-concepts/bootstrapping/initializers/facades" class="">
+                        Facades
+                    </a>
+                </div>
+                        
+                    </div>
+                </details>
+                                                <div class="nav-item">
+                    <a href="/core-concepts/bootstrapping/introduction" class="">
+                        Introduction
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/core-concepts/bootstrapping/advanced-bootstrapping" class="">
+                        Advanced bootstrapping
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/core-concepts/bootstrapping/creating-and-managing-initializers" class="">
+                        Creating and managing initializers
+                    </a>
+                </div>
+                        
+                    </div>
+                </details>
+                        
+                    </div>
+                </details>
+                        
+</nav>            </aside>
+    <main class="docs-content">
+            <h1>Introduction to Platform-Specific Integrations</h1>
+<p>When building applications with PHPNomad, you might need to integrate with platforms like WordPress, Laravel, or
+Symfony. These platforms often come with unique requirements, but PHPNomad’s philosophy ensures your core logic remains
+flexible and portable. The goal isn’t to lock your application into a specific platform but to allow your application to
+adapt seamlessly, as if it’s just visiting.</p>
+<p>PHPNomad takes a &quot;nomadic&quot; approach: instead of the platform dictating how your application is built, your application
+integrates with the platform through lightweight, modular adapters. This perspective keeps your application’s core logic
+clean and reusable, whether you’re bootstrapping a WordPress plugin or setting up a Laravel service provider, or maybe
+even building your own homegrown MVC system that uses PHPNomad.</p>
+<h2>Core Principles for Platform-Specific Integrations</h2>
+<p>To make integrations easy and maintainable, PHPNomad emphasizes separating shared application logic from
+platform-specific details. A shared initializer handles logic that works across platforms, while a platform-specific
+initializer adapts to the unique needs of a given environment.</p>
+<h2>Common Use Cases</h2>
+<p>A typical integration involves adapting the application’s bootstrapping process to a platform’s specific entry points.
+For WordPress, this might include setting up actions and filters, or binding WordPress actions with events that are
+inside your application.</p>
+<pre><code class="language-php">
+class WordPressSystemInitializer implements HasEventBindings, HasListeners
+{
+    /**
+     * Bind WordPress hooks to trigger Ready event.
+     *
+     * @return array
+     */
+    public function getEventBindings(): array
+    {
+        return [
+            // Bind WordPress 'init' hook to trigger the Ready event.
+            Ready::class =&gt; [
+                ['action' =&gt; 'init', 'transformer' =&gt; function () {
+                    $ready = null;
+
+                    if (!self::$initRan) {
+                        $ready = new Ready();
+                        self::$initRan = true;
+                    }
+
+                    return $ready;
+                }]
+            ],
+        ];
+    }
+
+    /**
+     * Register the listener for the Ready event.
+     *
+     * @return array
+     */
+    public function getListeners(): array
+    {
+        return [
+            // Instruct the system to register custom post types using a custom RegisterCustomPostTypes::class handler.
+            Ready::class =&gt; [RegisterCustomPostTypes::class]
+        ];
+    }
+}
+</code></pre>
+<p>The plugin might look like:</p>
+<pre><code class="language-php">/**
+ * Plugin Name: Demo Plugin
+ */ 
+
+require_once plugin_dir_url(__FILE__, 'vendor/autoload.php');
+
+$bootstrapper = new Bootstrapper($container, [
+    new WordPressInitializer(), // Provided by PHPNomad, making most functionality to work in WordPress context.
+    new ConfigInitializer(['config.json']),
+    new WordPressSystemInitializer(),
+    new ApplicationInitializer() // Shared application logic that's shared between platforms.
+]);
+
+// Run the bootstrapper to load all initializers.
+$bootstrapper-&gt;load();
+</code></pre>
+<p>In a homegrown setup, you might not need the binding since you have control of the entire request, and can probably just
+emit the event after the system is set up.</p>
+<pre><code class="language-php">// index.php
+
+require_once 'vendor/autoload.php';
+
+// Set up the container and initialize the bootstrapper.
+$container = new Container();
+$bootstrapper = new Bootstrapper($container, [
+    new ConfigInitializer(['config.json']),
+    new MySqlDatabaseInitializer(),
+    new RestApiInitializer(),
+    new SymfonyEventInitializer(),
+    new HomegrownSystemInitializer(),
+    new ApplicationInitializer() // Business logic that's shared between platforms.
+]);
+
+// Run the bootstrapper to load all initializers.
+$bootstrapper-&gt;load();
+
+// Broadcast the Ready event directly.
+Event::broadcast(new Ready());
+</code></pre>
+<p>These integrations allow the application to interface with the platform without embedding platform-specific details
+directly into the shared logic.</p>
+<h2>Challenges and Best Practices</h2>
+<p>One common pitfall in platform-specific integrations is allowing platform logic to creep into shared initializers. For
+instance, a shared initializer should never directly reference platform-specific declarations. Keeping
+these concerns separate ensures that shared initializers remain reusable across different contexts.</p>
+<p>If you’re debugging a platform-specific initializer, make sure the problem isn’t due to the platform’s lifecycle or API.
+For example, in WordPress, actions and filters may need to be registered at a specific point during initialization.</p>
+<p>For more information on this, check out <a href="./core-concepts/bootstrapping/initializers/event-binding.md">Event Bindings</a></p>
+<h2>Expanding Integrations</h2>
+<p>PHPNomad encourages you to think modularly when creating platform-specific initializers. By keeping your logic
+well-organized, you’ll make it easy to reuse these initializers across projects. For example, if you’ve written a
+WordPress initializer for handling custom post types, consider extracting it into a standalone class or package that can
+be dropped into any future WordPress project.</p>
+<p>Moreover, by sticking to PHPNomad’s philosophy of platform-agnostic design, your integrations will naturally be
+future-proof. As platforms evolve, you can update your initializers without rewriting your application’s core logic.</p>
+<p>Integrating with platforms doesn’t have to mean sacrificing flexibility. With PHPNomad, you can build applications that
+are adaptable, maintainable, and ready to travel wherever your project leads. By keeping platform logic modular and
+separate from your core logic, you ensure your applications remain as free-spirited as the PHPNomad philosophy itself.</p>
+
+    </main>
+</div>
+
+<footer>
+    <p class="mod--center">These docs were built with <a href="https://www.github.com/phpnomad/documentation">a static site generator that was made with PHPNomad.</a></p>
+<small class="mod--center">Made and maintained by the people at <a href="https://www.novatori.us">Novatorius</a>. <em>Mente Nova!</em></small></footer>
+</body>
+</html>
+

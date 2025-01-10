@@ -1,0 +1,63 @@
+body{
+	font-size:16px;
+}
+.docs-layout {
+	display: grid;
+	grid-template-columns: 250px 1fr;
+	gap: 2rem;
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 1rem;
+}
+
+.mod--center{
+	text-align:center;
+	margin: auto;
+	display: block;
+}
+
+header{
+	max-width:1200px;
+	margin:auto;
+}
+
+header nav{
+	display:flex;
+	justify-content: right;
+}
+
+.docs-content {
+	max-width: 800px;
+}
+
+.docs-sidebar {
+	position: sticky;
+	top: 1rem;
+	height: calc(100vh - 2rem);
+	overflow-y: auto;
+	padding-right: 1rem;
+}
+
+details[open] > summary, details{
+	margin-bottom:initial;
+}
+
+.nav-group {
+	border-left: 1px solid var(--pico-accordion-open-summary-color);
+	margin: 0.5rem 0 0.5rem 0.5rem;
+	padding-left: 0.5rem;
+}
+
+.nav-section > summary {
+	cursor: pointer;
+	padding: 0.25rem 0;
+	list-style: none;
+}
+
+.nav-item {
+	padding: 0.25rem 0;
+}
+
+.nav-item--active {
+	font-weight: bold;
+}

@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <link rel="stylesheet" href="/public/assets/pico.min.css">
+    <link rel="stylesheet" href="/public/assets/prism.css">
+    <link rel="stylesheet" href="/public/assets/style.css">
+    <script src="/public/assets/prism.js"></script>
+</head>
+<body>
+<header>
+    <nav>
+    <a href="https://www.github.com/phpnomad">GitHub</a>
+</nav></header>
+
+<div class="docs-layout">
+    <aside class="docs-sidebar">
+                    <a href="/"><img src="/public/assets/logo.png" alt="PHPNomad Logo"/></a>
+            <nav>
+    
+                                        <details class="nav-section" >
+                    <summary>
+                                                    Packages
+                                            </summary>
+                    <div class="nav-group">
+                                                            <details class="nav-section" >
+                    <summary>
+                                                    Utils
+                                            </summary>
+                    <div class="nav-group">
+                                                            <details class="nav-section" >
+                    <summary>
+                                                    Processors
+                                            </summary>
+                    <div class="nav-group">
+                                                            <div class="nav-item">
+                    <a href="/packages/utils/processors/list-sorter" class="">
+                        List sorter
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/packages/utils/processors/array-processor" class="">
+                        Array processor
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/packages/utils/processors/list-filter" class="">
+                        List filter
+                    </a>
+                </div>
+                        
+                    </div>
+                </details>
+                                                <div class="nav-item">
+                    <a href="/packages/utils/array-helper" class="">
+                        Array helper
+                    </a>
+                </div>
+                        
+                    </div>
+                </details>
+                        
+                    </div>
+                </details>
+                                                <details class="nav-section" >
+                    <summary>
+                                                    Core concepts
+                                            </summary>
+                    <div class="nav-group">
+                                                            <details class="nav-section" >
+                    <summary>
+                                                    Bootstrapping
+                                            </summary>
+                    <div class="nav-group">
+                                                            <div class="nav-item">
+                    <a href="/core-concepts/bootstrapping/platform-integrations" class="">
+                        Platform integrations
+                    </a>
+                </div>
+                                                <details class="nav-section" >
+                    <summary>
+                                                    Initializers
+                                            </summary>
+                    <div class="nav-group">
+                                                            <div class="nav-item">
+                    <a href="/core-concepts/bootstrapping/initializers/event-listeners" class="">
+                        Event listeners
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/core-concepts/bootstrapping/initializers/event-binding" class="">
+                        Event binding
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/core-concepts/bootstrapping/initializers/facades" class="">
+                        Facades
+                    </a>
+                </div>
+                        
+                    </div>
+                </details>
+                                                <div class="nav-item">
+                    <a href="/core-concepts/bootstrapping/introduction" class="">
+                        Introduction
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/core-concepts/bootstrapping/advanced-bootstrapping" class="">
+                        Advanced bootstrapping
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/core-concepts/bootstrapping/creating-and-managing-initializers" class="">
+                        Creating and managing initializers
+                    </a>
+                </div>
+                        
+                    </div>
+                </details>
+                        
+                    </div>
+                </details>
+                        
+</nav>            </aside>
+    <main class="docs-content">
+            <h1>PHPNomad</h1>
+<p>PHPNomad's primary purpose is to create code that's both easy to read and simple to use, while remaining
+platform-agnostic. By focusing on clear, modular design, PHPNomad allows developers to build code that works
+consistently across various environments, making it adaptable without added complexity.</p>
+<h2>What is PHPNomad?</h2>
+<p>Think of PHPNomad as a way to write code that can easily move between different PHP systems. Whether you're building a
+WordPress plugin, a Laravel application, or a homegrown MVC service, PHPNomad helps make your code portable and adaptable.</p>
+<p>The name comes from the idea that your code should be able to travel and adapt, just like a digital nomad who can
+work from anywhere.</p>
+<h2>Why PHPNomad?</h2>
+<h3>Eliminate Context Switching</h3>
+<p>The biggest advantage of PHPNomad is eliminating mental overhead when working across different platforms. Developers use
+the same patterns, tools, and approaches whether building a WordPress plugin, Laravel application, or standalone PHP
+service. This consistency dramatically reduces cognitive load and increases productivity.</p>
+<h3>True Platform Independence</h3>
+<p>Rather than being tied to platform-specific implementations (like WordPress's <code>wp_remote_request</code> or Laravel's Guzzle),
+PHPNomad introduces a buffer layer between your business logic and platform-specific code. This means your core
+functionality remains clean and portable, while platform-specific details are handled through clean interfaces.</p>
+<h3>A Framework for Modern Development</h3>
+<p>PHPNomad's consistent patterns and clear separation of concerns make it ideal for modern development practices,
+including:</p>
+<ul>
+<li>AI-assisted development through standardized patterns</li>
+<li>Microservices architecture through modular design</li>
+<li>Future-proofing through platform agnosticism</li>
+</ul>
+<h2>Core Principles</h2>
+<h3>Platform-Agnostic Design</h3>
+<p>At the heart of PHPNomad is a commitment to platform-agnostic design. Components are crafted to function seamlessly
+across different systems, including WordPress, Laravel, Symfony, and standalone PHP applications. This design allows
+your codebase to &quot;travel&quot; effortlessly between environments.</p>
+<h3>Separation of Concerns</h3>
+<p>PHPNomad separates business logic from platform-specific integrations through dependency injection and the strategy
+pattern. This creates a clean buffer between your core logic and platform-specific code, letting each system &quot;plug in&quot;
+without deep coupling.</p>
+<h3>Inversion of Control</h3>
+<p>PHPNomad shifts control from platform-specific code to your core system. This means platforms integrate into your
+application rather than your application integrating into platforms. This fundamental shift makes your codebase truly
+portable.</p>
+<h3>Modularity</h3>
+<p>Start small and scale as needed. Each feature exists as an independent module, allowing you to begin with a simple
+WordPress plugin and later extract parts into microservices or add new functionality. This modularity empowers teams to
+scale at their own pace.</p>
+<h3>Event-Driven Architecture</h3>
+<p>Built around events, PHPNomad facilitates both synchronous and asynchronous operations without binding to specific
+platforms. This approach enhances scalability and makes your codebase responsive in any environment.</p>
+
+    </main>
+</div>
+
+<footer>
+    <p class="mod--center">These docs were built with <a href="https://www.github.com/phpnomad/documentation">a static site generator that was made with PHPNomad.</a></p>
+<small class="mod--center">Made and maintained by the people at <a href="https://www.novatori.us">Novatorius</a>. <em>Mente Nova!</em></small></footer>
+</body>
+</html>
+

@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <link rel="stylesheet" href="/public/assets/pico.min.css">
+    <link rel="stylesheet" href="/public/assets/prism.css">
+    <link rel="stylesheet" href="/public/assets/style.css">
+    <script src="/public/assets/prism.js"></script>
+</head>
+<body>
+<header>
+    <nav>
+    <a href="https://www.github.com/phpnomad">GitHub</a>
+</nav></header>
+
+<div class="docs-layout">
+    <aside class="docs-sidebar">
+                    <a href="/"><img src="/public/assets/logo.png" alt="PHPNomad Logo"/></a>
+            <nav>
+    
+                                        <details class="nav-section" >
+                    <summary>
+                                                    Packages
+                                            </summary>
+                    <div class="nav-group">
+                                                            <details class="nav-section" >
+                    <summary>
+                                                    Utils
+                                            </summary>
+                    <div class="nav-group">
+                                                            <details class="nav-section" >
+                    <summary>
+                                                    Processors
+                                            </summary>
+                    <div class="nav-group">
+                                                            <div class="nav-item">
+                    <a href="/packages/utils/processors/list-sorter" class="">
+                        List sorter
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/packages/utils/processors/array-processor" class="">
+                        Array processor
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/packages/utils/processors/list-filter" class="">
+                        List filter
+                    </a>
+                </div>
+                        
+                    </div>
+                </details>
+                                                <div class="nav-item">
+                    <a href="/packages/utils/array-helper" class="">
+                        Array helper
+                    </a>
+                </div>
+                        
+                    </div>
+                </details>
+                        
+                    </div>
+                </details>
+                                                <details class="nav-section" open>
+                    <summary>
+                                                    Core concepts
+                                            </summary>
+                    <div class="nav-group">
+                                                            <details class="nav-section" open>
+                    <summary>
+                                                    Bootstrapping
+                                            </summary>
+                    <div class="nav-group">
+                                                            <div class="nav-item">
+                    <a href="/core-concepts/bootstrapping/platform-integrations" class="">
+                        Platform integrations
+                    </a>
+                </div>
+                                                <details class="nav-section" open>
+                    <summary>
+                                                    Initializers
+                                            </summary>
+                    <div class="nav-group">
+                                                            <div class="nav-item">
+                    <a href="/core-concepts/bootstrapping/initializers/event-listeners" class="">
+                        Event listeners
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/core-concepts/bootstrapping/initializers/event-binding" class="">
+                        Event binding
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/core-concepts/bootstrapping/initializers/facades" class="">
+                        Facades
+                    </a>
+                </div>
+                        
+                    </div>
+                </details>
+                                                <div class="nav-item">
+                    <a href="/core-concepts/bootstrapping/introduction" class="">
+                        Introduction
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/core-concepts/bootstrapping/advanced-bootstrapping" class="">
+                        Advanced bootstrapping
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/core-concepts/bootstrapping/creating-and-managing-initializers" class="">
+                        Creating and managing initializers
+                    </a>
+                </div>
+                        
+                    </div>
+                </details>
+                        
+                    </div>
+                </details>
+                        
+</nav>            </aside>
+    <main class="docs-content">
+            <h1>Creating and Using Facades in PHPNomad</h1>
+<p>While the Facade pattern was popularized by Laravel, PHPNomad's implementation takes a slightly different approach that
+aligns with its platform-agnostic philosophy. Instead of being deeply integrated with a service container, PHPNomad's
+Facades act as singleton wrappers that make your services easier to use across different platforms.</p>
+<h2>What is a Facade?</h2>
+<p>Think of a Facade as a simple front door to a complex building. Instead of navigating through all the rooms and
+hallways, you just walk through the front door to get where you need to go. In code terms, a Facade provides a clean,
+static interface to access functionality that might otherwise require more complex setup or dependency management.</p>
+<h2>Creating Your First Facade</h2>
+<p>Here's how to create a basic Facade:</p>
+<pre><code class="language-php">use PHPNomad\Facade\Abstracts\Facade;
+use PHPNomad\Singleton\Traits\WithInstance;
+
+/**
+ * @method static void info(string $message)
+ * @method static void error(string $message, array $context = [])
+ */
+class Logger extends Facade 
+{
+    use WithInstance; // Important! This makes the Facade a singleton
+
+    protected function abstractInstance(): string 
+    {
+        return LoggerStrategy::class;
+    }
+}
+</code></pre>
+<h2>Using Your Facade</h2>
+<p>Once created, using your Facade is straightforward:</p>
+<pre><code class="language-php">// No need to instantiate - just use it!
+Logger::instance()-&gt;getContainedInstance()-&gt;info(&quot;Hello from PHPNomad!&quot;);
+
+// Or better yet, add static methods to make it cleaner:
+Logger::info(&quot;Hello from PHPNomad!&quot;);
+</code></pre>
+<h2>Key Differences from Laravel</h2>
+<p>While inspired by Laravel's Facades, PHPNomad's implementation has some key differences:</p>
+<ol>
+<li><strong>Singleton Pattern</strong>: PHPNomad Facades use the <code>WithInstance</code> trait to ensure only one instance exists</li>
+<li><strong>Platform Independence</strong>: PHPNomad's Facades are designed to work across any PHP platform</li>
+<li><strong>Explicit Methods</strong>: Instead of magic methods, PHPNomad encourages explicitly defining the methods you want to
+expose</li>
+</ol>
+<h2>Registering Facades</h2>
+<p>Facades need to be registered with PHPNomad through an initializer:</p>
+<pre><code class="language-php">use PHPNomad\Di\Interfaces\CanSetContainer;
+use PHPNomad\Di\Traits\HasSettableContainer;
+use PHPNomad\Facade\Interfaces\HasFacades;
+
+class CoreInitializer implements HasFacades, HasClassDefinitions, CanSetContainer 
+{
+    use HasSettableContainer;
+
+    public function getFacades(): array 
+    {
+        return [
+            Logger::instance(), // Note the instance() call
+            Cache::instance(),
+            Event::instance()
+        ];
+    }
+
+    public function getClassDefinitions(): array 
+    {
+        return [
+            LogService::class =&gt; LoggerStrategy::class,
+            RedisCache::class =&gt; CacheStrategy::class,
+            EventDispatcher::class =&gt; EventStrategy::class
+        ];
+    }
+}
+</code></pre>
+<h2>A Complete Example</h2>
+<p>Here's a complete example showing how to create and use a Cache Facade:</p>
+<pre><code class="language-php">/**
+ * 1. Create the Facade
+ */
+class Cache extends Facade 
+{
+    use WithInstance;
+
+    protected function abstractInstance(): string 
+    {
+        return CacheStrategy::class;
+    }
+
+    public static function get(string $key): mixed 
+    {
+        return static::instance()-&gt;getContainedInstance()-&gt;get($key);
+    }
+
+    public static function set(string $key, mixed $value, ?int $ttl = null): void 
+    {
+        static::instance()-&gt;getContainedInstance()-&gt;set($key, $value, $ttl);
+    }
+
+    public static function has(string $key): bool 
+    {
+        return static::instance()-&gt;getContainedInstance()-&gt;has($key);
+    }
+}
+
+/**
+ * 2. Create the Initializer
+ */
+class CacheInitializer implements HasFacades, HasClassDefinitions, CanSetContainer 
+{
+    use HasSettableContainer;
+
+    public function getFacades(): array 
+    {
+        return [
+            Cache::instance() // Single instance
+        ];
+    }
+
+    public function getClassDefinitions(): array 
+    {
+        return [
+            RedisCache::class =&gt; CacheStrategy::class
+        ];
+    }
+}
+
+/**
+ * 3. Bootstrap your application
+ */
+$container = new Container();
+$bootstrapper = new Bootstrapper(
+    $container,
+    new CacheInitializer()
+);
+$bootstrapper-&gt;load();
+
+/**
+ * 4. Use the Facade anywhere in your code
+ */
+Cache::set('my-key', 'my-value', 3600);
+$value = Cache::get('my-key');
+</code></pre>
+<h2>⚠️ Important Warning About Facades</h2>
+<p>Before diving into how to create and use Facades, it's crucial to understand their intended purpose and limitations:
+Facades in PHPNomad are primarily designed for:</p>
+<ul>
+<li>Creating public APIs that third-party developers can easily consume</li>
+<li>Providing simple access points for developers integrating with your application from outside the PHPNomad context</li>
+<li>Situations where dependency injection isn't practical (like static WordPress hooks or template files)</li>
+</ul>
+<p>They are not intended for:</p>
+<ul>
+<li>Regular application development within your PHPNomad codebase</li>
+<li>Replacing proper dependency injection</li>
+<li>Avoiding proper service architecture</li>
+</ul>
+<p>If you find yourself frequently using Facades within your own application code, this is usually a sign that you should
+reconsider your approach. Instead, use dependency injection and proper service architecture for better maintainability,
+testability, and cleaner code design.</p>
+<p>Example of Proper vs. Improper Use</p>
+<pre><code class="language-php">// 🚫 Don't do this in your application code
+class UserService {
+    public function createUser(array $data) {
+        Logger::info(&quot;Creating user...&quot;);  // Directly using Facade
+        // ... rest of the code
+    }
+}
+
+// ✅ Do this instead
+class UserService {
+    private LoggerStrategy $logger;
+    
+    public function __construct(LoggerStrategy $logger) {
+        $this-&gt;logger = $logger;  // Proper dependency injection
+    }
+    
+    public function createUser(array $data) {
+        $this-&gt;logger-&gt;info(&quot;Creating user...&quot;);
+        // ... rest of the code
+    }
+}
+
+// ✅ Facades are great for third-party integration points
+add_action('init', function() {
+    Logger::info(&quot;WordPress integration point&quot;);
+});
+</code></pre>
+<h2>Best Practices</h2>
+<h3>1. Always Use WithInstance</h3>
+<p>Every Facade must use the <code>WithInstance</code> trait to ensure the singleton pattern:</p>
+<pre><code class="language-php">class AnyFacade extends Facade 
+{
+    use WithInstance; // Don't forget this!
+}
+</code></pre>
+<h3>2. Keep Facades Focused</h3>
+<p>Each Facade should represent a single service:</p>
+<pre><code class="language-php">// Good - focused on caching
+class Cache extends Facade 
+{
+    use WithInstance;
+
+    protected function abstractInstance(): string 
+    {
+        return CacheStrategy::class;
+    }
+}
+
+// Not good - mixing concerns
+class Utilities extends Facade 
+{
+    use WithInstance;
+
+    protected function abstractInstance(): string 
+    {
+        return UtilityService::class; // Too many responsibilities
+    }
+}
+</code></pre>
+<h3>3. Group Related Facades in Initializers</h3>
+<p>Keep related Facades together in their initializers:</p>
+<pre><code class="language-php">class DatabaseInitializer implements HasFacades 
+{
+    public function getFacades(): array 
+    {
+        return [
+            Query::instance(),
+            Schema::instance(),
+            Migration::instance()
+        ];
+    }
+}
+</code></pre>
+<h2>When to Use Facades</h2>
+<p>Facades are great for:</p>
+<ul>
+<li>Services that need global access</li>
+<li>Core functionality used throughout your application</li>
+<li>Cross-cutting concerns like logging, caching, and events</li>
+</ul>
+<p>Consider alternatives when:</p>
+<ul>
+<li>The service requires complex configuration</li>
+<li>You're writing unit tests (use dependency injection)</li>
+<li>The functionality is specific to a single module</li>
+</ul>
+<h2>Common Pitfalls to Avoid</h2>
+<ol>
+<li><strong>Forgetting WithInstance</strong>: Always include the <code>WithInstance</code> trait in your Facades</li>
+<li><strong>Overusing Facades</strong>: Not everything needs to be a Facade</li>
+<li><strong>Complex Logic in Facades</strong>: Keep Facade methods simple and delegate complex logic to the service</li>
+<li><strong>Bypassing Dependency Injection</strong>: Use Facades for convenience, not to avoid proper dependency management</li>
+</ol>
+<p>Remember: Facades in PHPNomad combine the singleton pattern with static access to provide convenient, globally
+accessible services while maintaining the flexibility to work across different platforms. The key is to use them
+thoughtfully and always remember to include the <code>WithInstance</code> trait.</p>
+
+    </main>
+</div>
+
+<footer>
+    <p class="mod--center">These docs were built with <a href="https://www.github.com/phpnomad/documentation">a static site generator that was made with PHPNomad.</a></p>
+<small class="mod--center">Made and maintained by the people at <a href="https://www.novatori.us">Novatorius</a>. <em>Mente Nova!</em></small></footer>
+</body>
+</html>
+

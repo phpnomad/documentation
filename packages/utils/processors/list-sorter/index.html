@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <link rel="stylesheet" href="/public/assets/pico.min.css">
+    <link rel="stylesheet" href="/public/assets/prism.css">
+    <link rel="stylesheet" href="/public/assets/style.css">
+    <script src="/public/assets/prism.js"></script>
+</head>
+<body>
+<header>
+    <nav>
+    <a href="https://www.github.com/phpnomad">GitHub</a>
+</nav></header>
+
+<div class="docs-layout">
+    <aside class="docs-sidebar">
+                    <a href="/"><img src="/public/assets/logo.png" alt="PHPNomad Logo"/></a>
+            <nav>
+    
+                                        <details class="nav-section" open>
+                    <summary>
+                                                    Packages
+                                            </summary>
+                    <div class="nav-group">
+                                                            <details class="nav-section" open>
+                    <summary>
+                                                    Utils
+                                            </summary>
+                    <div class="nav-group">
+                                                            <details class="nav-section" open>
+                    <summary>
+                                                    Processors
+                                            </summary>
+                    <div class="nav-group">
+                                                            <div class="nav-item">
+                    <a href="/packages/utils/processors/list-sorter" class="">
+                        List sorter
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/packages/utils/processors/array-processor" class="">
+                        Array processor
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/packages/utils/processors/list-filter" class="">
+                        List filter
+                    </a>
+                </div>
+                        
+                    </div>
+                </details>
+                                                <div class="nav-item">
+                    <a href="/packages/utils/array-helper" class="">
+                        Array helper
+                    </a>
+                </div>
+                        
+                    </div>
+                </details>
+                        
+                    </div>
+                </details>
+                                                <details class="nav-section" >
+                    <summary>
+                                                    Core concepts
+                                            </summary>
+                    <div class="nav-group">
+                                                            <details class="nav-section" >
+                    <summary>
+                                                    Bootstrapping
+                                            </summary>
+                    <div class="nav-group">
+                                                            <div class="nav-item">
+                    <a href="/core-concepts/bootstrapping/platform-integrations" class="">
+                        Platform integrations
+                    </a>
+                </div>
+                                                <details class="nav-section" >
+                    <summary>
+                                                    Initializers
+                                            </summary>
+                    <div class="nav-group">
+                                                            <div class="nav-item">
+                    <a href="/core-concepts/bootstrapping/initializers/event-listeners" class="">
+                        Event listeners
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/core-concepts/bootstrapping/initializers/event-binding" class="">
+                        Event binding
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/core-concepts/bootstrapping/initializers/facades" class="">
+                        Facades
+                    </a>
+                </div>
+                        
+                    </div>
+                </details>
+                                                <div class="nav-item">
+                    <a href="/core-concepts/bootstrapping/introduction" class="">
+                        Introduction
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/core-concepts/bootstrapping/advanced-bootstrapping" class="">
+                        Advanced bootstrapping
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/core-concepts/bootstrapping/creating-and-managing-initializers" class="">
+                        Creating and managing initializers
+                    </a>
+                </div>
+                        
+                    </div>
+                </details>
+                        
+                    </div>
+                </details>
+                        
+</nav>            </aside>
+    <main class="docs-content">
+            <h1>List Sorter</h1>
+<p>A list sorter makes it possible to sort items from an array of objects using a chain-able query syntax. This feature
+is built-into <a href="/reference/registries/object-registries">Object Registries</a> via the <code>ObjectRegistry::query</code> method,
+however it can also be used on raw arrays, as long as each item in the array has the same getters and setters you're
+sorting by. This can be done using fully-qualified objects, or by simply converting arrays to objects, as shown below.</p>
+<pre><code class="language-php">use \PHPNomad\Helpers\Processors\ListFilter;
+
+$iceCreamOrderItems = [
+  (object) [
+      'customer' =&gt; (object)['name' =&gt; 'Alex', 'id' =&gt; 1],
+      'scoops' =&gt; ['strawberry','chocolate'],
+      'cone' =&gt; 'waffle',
+      'price' =&gt; 629,
+      'toppings' =&gt; ['cheese-crackers']
+  ],
+  
+  (object) [
+      'customer' =&gt; (object)['name' =&gt; 'Devin', 'id' =&gt; 2],
+      'scoops' =&gt; ['chocolate'],
+      'cone' =&gt; 'chocolateWaffle',
+      'price' =&gt; 429,
+      'toppings' =&gt; ['sprinkles']
+  ],
+  
+  (object) [
+      'customer' =&gt; (object)['name' =&gt; 'Kate', 'id' =&gt; 3],
+      'scoops' =&gt; ['vanilla'],
+      'cone' =&gt; 'basic',
+      'price' =&gt; 429,
+      'toppings' =&gt; []
+  ],
+  
+  (object) [
+      'customer' =&gt; (object)['name' =&gt; 'Ben', 'id' =&gt; 4],
+      'scoops' =&gt; ['strawberry','chocolate', 'vanilla'], 
+      'cone' =&gt; 'bowl',
+      'price' =&gt; 899,
+      'toppings' =&gt; ['sprinkles']
+  ],
+];
+</code></pre>
+<h2>Usage</h2>
+<p>Sort items by price</p>
+<pre><code class="language-php">$sorted = (new ListSorter($iceCreamOrderItems))-&gt;sortBy('price')-&gt;sort()
+$sortedReverse = (new ListSorter($iceCreamOrderItems))-&gt;sortBy('price', Direction::Descending)-&gt;sort()
+</code></pre>
+<p>Nested object values are supported. Sort items by customer name.</p>
+<pre><code class="language-php">$sorted = (new ListSorter($iceCreamOrderItems))-&gt;sortBy('customer.name')-&gt;sort()
+$sortedReverse = (new ListSorter($iceCreamOrderItems))-&gt;sortBy('customer.name', Direction::Descending)-&gt;sort()
+</code></pre>
+<h2>Custom Sorting Method</h2>
+<p>The default sorting method provided in <code>ListSorter</code> is sufficient for most cases, however, if you need to create a custom sorting algorithm for it, this can be done by extending the <code>SortMethod</code> class.</p>
+<p>The example below creates a custom sorting method that makes it possible to sort items based on the number of items in the array. This allows us to sort the ice cream orders by the number of scoops.</p>
+<pre><code class="language-php">use PHPNomad\Abstracts\SortMethod;
+use \PHPNomad\Helpers\ObjectHelper;
+
+// First create the sorter.
+class ArrayCountSorter extends SortMethod{
+
+  // The sort method is called on each item, and works much like usort, except it also includes the field name and the direction.
+  public function sort( object $a, object $b, string $field, Direction $direction ): int
+  {
+    // The spaceship operator will return -1, 0, or 1 based on the result. See PHP docs.
+    $result = count(ObjectHelper::pluck($a, $field)) &lt;=&gt; count(ObjectHelper::pluck($b, $field));
+
+    // Invert the result if it's descending, otherwise simply return the result as-is.
+    return $direction === Direction::Descending ? $result * -1 : $result;
+  }
+}
+
+// Use the custom sorter method with scoops.
+$sorted = (new ListSorter($iceCreamOrderItems))
+    -&gt;sortBy(field: 'scoops', method: ArrayCountSorter::class)
+    -&gt;sort();
+
+// Use the custom sorter method with scoops, only this time reverse it, Missy Elliott style.
+$sortedReverse = (new ListSorter($iceCreamOrderItems))
+    -&gt;sortBy(field: 'scoops', direction: Direction::Descending, method: ArrayCountSorter::class)
+    -&gt;sort();
+</code></pre>
+
+    </main>
+</div>
+
+<footer>
+    <p class="mod--center">These docs were built with <a href="https://www.github.com/phpnomad/documentation">a static site generator that was made with PHPNomad.</a></p>
+<small class="mod--center">Made and maintained by the people at <a href="https://www.novatori.us">Novatorius</a>. <em>Mente Nova!</em></small></footer>
+</body>
+</html>
+

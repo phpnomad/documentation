@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <link rel="stylesheet" href="/public/assets/pico.min.css">
+    <link rel="stylesheet" href="/public/assets/prism.css">
+    <link rel="stylesheet" href="/public/assets/style.css">
+    <script src="/public/assets/prism.js"></script>
+</head>
+<body>
+<header>
+    <nav>
+    <a href="https://www.github.com/phpnomad">GitHub</a>
+</nav></header>
+
+<div class="docs-layout">
+    <aside class="docs-sidebar">
+                    <a href="/"><img src="/public/assets/logo.png" alt="PHPNomad Logo"/></a>
+            <nav>
+    
+                                        <details class="nav-section" >
+                    <summary>
+                                                    Packages
+                                            </summary>
+                    <div class="nav-group">
+                                                            <details class="nav-section" >
+                    <summary>
+                                                    Utils
+                                            </summary>
+                    <div class="nav-group">
+                                                            <details class="nav-section" >
+                    <summary>
+                                                    Processors
+                                            </summary>
+                    <div class="nav-group">
+                                                            <div class="nav-item">
+                    <a href="/packages/utils/processors/list-sorter" class="">
+                        List sorter
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/packages/utils/processors/array-processor" class="">
+                        Array processor
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/packages/utils/processors/list-filter" class="">
+                        List filter
+                    </a>
+                </div>
+                        
+                    </div>
+                </details>
+                                                <div class="nav-item">
+                    <a href="/packages/utils/array-helper" class="">
+                        Array helper
+                    </a>
+                </div>
+                        
+                    </div>
+                </details>
+                        
+                    </div>
+                </details>
+                                                <details class="nav-section" open>
+                    <summary>
+                                                    Core concepts
+                                            </summary>
+                    <div class="nav-group">
+                                                            <details class="nav-section" open>
+                    <summary>
+                                                    Bootstrapping
+                                            </summary>
+                    <div class="nav-group">
+                                                            <div class="nav-item">
+                    <a href="/core-concepts/bootstrapping/platform-integrations" class="">
+                        Platform integrations
+                    </a>
+                </div>
+                                                <details class="nav-section" >
+                    <summary>
+                                                    Initializers
+                                            </summary>
+                    <div class="nav-group">
+                                                            <div class="nav-item">
+                    <a href="/core-concepts/bootstrapping/initializers/event-listeners" class="">
+                        Event listeners
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/core-concepts/bootstrapping/initializers/event-binding" class="">
+                        Event binding
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/core-concepts/bootstrapping/initializers/facades" class="">
+                        Facades
+                    </a>
+                </div>
+                        
+                    </div>
+                </details>
+                                                <div class="nav-item">
+                    <a href="/core-concepts/bootstrapping/introduction" class="">
+                        Introduction
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/core-concepts/bootstrapping/advanced-bootstrapping" class="">
+                        Advanced bootstrapping
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/core-concepts/bootstrapping/creating-and-managing-initializers" class="">
+                        Creating and managing initializers
+                    </a>
+                </div>
+                        
+                    </div>
+                </details>
+                        
+                    </div>
+                </details>
+                        
+</nav>            </aside>
+    <main class="docs-content">
+            <h1>Advanced Bootstrapping Patterns</h1>
+<p>When your application grows, you might need more sophisticated ways to organize how it starts up. This guide will show
+you how to handle more complex bootstrapping scenarios in PHPNomad.</p>
+<h2>Breaking Things into Groups</h2>
+<p>Just like you might organize your clothes into different drawers, you can organize your application's startup code into
+logical groups. This makes everything easier to manage and understand.</p>
+<p>Here's a simple example:</p>
+<pre><code class="language-php">// Database-related initialization
+$databaseBootstrapper = new Bootstrapper(
+    $container,
+    new MySqlInitializer(),
+    new TableCreateInitializer(),
+    new MigrationInitializer()
+);
+
+// Authentication-related initialization
+$authBootstrapper = new Bootstrapper(
+    $container,
+    new UserInitializer(),
+    new PermissionInitializer(),
+    new SessionInitializer()
+);
+
+// Run them in sequence
+$databaseBootstrapper-&gt;load();
+$authBootstrapper-&gt;load();
+</code></pre>
+<h2>Using Factories for Reusability</h2>
+<p>Sometimes you'll want to reuse the same group of initializers in different places. Factories are a great way to package
+up these groups so they're easy to reuse:</p>
+<pre><code class="language-php">class DatabaseBootstrapperFactory 
+{
+    protected Container $container;
+    
+    public function __construct(Container $container) 
+    {
+        $this-&gt;container = $container;
+    }
+    
+    public function create(): Bootstrapper 
+    {
+        return new Bootstrapper(
+            $this-&gt;container,
+            new MySqlInitializer(),
+            new TableCreateInitializer(),
+            new MigrationInitializer()
+        );
+    }
+}
+
+// Using the factory
+$factory = new DatabaseBootstrapperFactory($container);
+$bootstrapper = $factory-&gt;create();
+$bootstrapper-&gt;load();
+</code></pre>
+<h2>Conditional Bootstrapping</h2>
+<p>Sometimes you need different initialization based on your environment or other conditions. Here's how you might handle
+that:</p>
+<pre><code class="language-php">class ConditionalBootstrapper 
+{
+    public function load(string $environment) 
+    {
+        $container = new Container();
+        
+        // Core bootstrapping that always runs
+        $core = new Bootstrapper(
+            $container,
+            new CoreInitializer(),
+            new ConfigInitializer()
+        );
+        $core-&gt;load();
+        
+        // Environment-specific bootstrapping
+        if ($environment === 'development') {
+            $dev = new Bootstrapper(
+                $container,
+                new DebugInitializer(),
+                new MockDataInitializer()
+            );
+            $dev-&gt;load();
+        }
+        
+        if ($environment === 'production') {
+            $prod = new Bootstrapper(
+                $container,
+                new CacheInitializer(),
+                new MonitoringInitializer()
+            );
+            $prod-&gt;load();
+        }
+    }
+}
+</code></pre>
+<h2>Real-World Example: Plugin System</h2>
+<p>Here's a practical example showing how you might bootstrap a plugin system:</p>
+<pre><code class="language-php">class PluginBootstrapperFactory 
+{
+    protected Container $container;
+    
+    public function __construct(Container $container) 
+    {
+        $this-&gt;container = $container;
+    }
+    
+    public function createForPlugin(string $pluginName): Bootstrapper 
+    {
+        // Core plugin bootstrapping
+        $bootstrapper = new Bootstrapper(
+            $this-&gt;container,
+            new PluginCoreInitializer($pluginName),
+            new PluginAssetsInitializer($pluginName)
+        );
+        
+        // Add optional features based on plugin configuration
+        if ($this-&gt;hasDatabase($pluginName)) {
+            $bootstrapper = new Bootstrapper(
+                $this-&gt;container,
+                $bootstrapper,
+                new PluginDatabaseInitializer($pluginName)
+            );
+        }
+        
+        if ($this-&gt;hasRestApi($pluginName)) {
+            $bootstrapper = new Bootstrapper(
+                $this-&gt;container,
+                $bootstrapper,
+                new PluginRestInitializer($pluginName)
+            );
+        }
+        
+        return $bootstrapper;
+    }
+    
+    protected function hasDatabase(string $pluginName): bool 
+    {
+        // Check if plugin needs database features
+        return true; // Simplified for example
+    }
+    
+    protected function hasRestApi(string $pluginName): bool 
+    {
+        // Check if plugin needs REST API features
+        return true; // Simplified for example
+    }
+}
+</code></pre>
+<h2>Tips for Complex Bootstrapping</h2>
+<ol>
+<li>
+<p><strong>Keep It Organized</strong>: Group related initializers together. This makes your code easier to understand and maintain.</p>
+</li>
+<li>
+<p><strong>Use Clear Names</strong>: Give your bootstrapper groups and factories names that clearly explain what they do.</p>
+</li>
+<li>
+<p><strong>Stay Flexible</strong>: Design your bootstrapping code so it's easy to add or remove features without breaking things.</p>
+</li>
+<li>
+<p><strong>Think About Order</strong>: Sometimes the order of initialization matters. Group your bootstrappers accordingly and
+document any important ordering requirements.</p>
+</li>
+</ol>
+<h2>Common Patterns to Avoid</h2>
+<ol>
+<li>
+<p><strong>Don't Mix Concerns</strong>: Keep platform-specific code separate from your core bootstrapping logic.</p>
+</li>
+<li>
+<p><strong>Avoid Global State</strong>: Don't rely on global variables or static properties for bootstrapping configuration.</p>
+</li>
+<li>
+<p><strong>Don't Over-Engineer</strong>: Start simple and add complexity only when you need it.</p>
+</li>
+</ol>
+<h2>Summary</h2>
+<p>Advanced bootstrapping patterns help you manage complex applications while keeping your code organized and maintainable.
+By using groups, factories, and conditional loading, you can create a flexible system that grows with your needs while
+staying clean and understandable.</p>
+<p>Remember: The goal is to make your initialization process clear and maintainable, not to make it clever or complex. When
+in doubt, choose the simpler approach.</p>
+
+    </main>
+</div>
+
+<footer>
+    <p class="mod--center">These docs were built with <a href="https://www.github.com/phpnomad/documentation">a static site generator that was made with PHPNomad.</a></p>
+<small class="mod--center">Made and maintained by the people at <a href="https://www.novatori.us">Novatorius</a>. <em>Mente Nova!</em></small></footer>
+</body>
+</html>
+

@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <link rel="stylesheet" href="/public/assets/pico.min.css">
+    <link rel="stylesheet" href="/public/assets/prism.css">
+    <link rel="stylesheet" href="/public/assets/style.css">
+    <script src="/public/assets/prism.js"></script>
+</head>
+<body>
+<header>
+    <nav>
+    <a href="https://www.github.com/phpnomad">GitHub</a>
+</nav></header>
+
+<div class="docs-layout">
+    <aside class="docs-sidebar">
+                    <a href="/"><img src="/public/assets/logo.png" alt="PHPNomad Logo"/></a>
+            <nav>
+    
+                                        <details class="nav-section" >
+                    <summary>
+                                                    Packages
+                                            </summary>
+                    <div class="nav-group">
+                                                            <details class="nav-section" >
+                    <summary>
+                                                    Utils
+                                            </summary>
+                    <div class="nav-group">
+                                                            <details class="nav-section" >
+                    <summary>
+                                                    Processors
+                                            </summary>
+                    <div class="nav-group">
+                                                            <div class="nav-item">
+                    <a href="/packages/utils/processors/list-sorter" class="">
+                        List sorter
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/packages/utils/processors/array-processor" class="">
+                        Array processor
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/packages/utils/processors/list-filter" class="">
+                        List filter
+                    </a>
+                </div>
+                        
+                    </div>
+                </details>
+                                                <div class="nav-item">
+                    <a href="/packages/utils/array-helper" class="">
+                        Array helper
+                    </a>
+                </div>
+                        
+                    </div>
+                </details>
+                        
+                    </div>
+                </details>
+                                                <details class="nav-section" open>
+                    <summary>
+                                                    Core concepts
+                                            </summary>
+                    <div class="nav-group">
+                                                            <details class="nav-section" open>
+                    <summary>
+                                                    Bootstrapping
+                                            </summary>
+                    <div class="nav-group">
+                                                            <div class="nav-item">
+                    <a href="/core-concepts/bootstrapping/platform-integrations" class="">
+                        Platform integrations
+                    </a>
+                </div>
+                                                <details class="nav-section" >
+                    <summary>
+                                                    Initializers
+                                            </summary>
+                    <div class="nav-group">
+                                                            <div class="nav-item">
+                    <a href="/core-concepts/bootstrapping/initializers/event-listeners" class="">
+                        Event listeners
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/core-concepts/bootstrapping/initializers/event-binding" class="">
+                        Event binding
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/core-concepts/bootstrapping/initializers/facades" class="">
+                        Facades
+                    </a>
+                </div>
+                        
+                    </div>
+                </details>
+                                                <div class="nav-item">
+                    <a href="/core-concepts/bootstrapping/introduction" class="">
+                        Introduction
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/core-concepts/bootstrapping/advanced-bootstrapping" class="">
+                        Advanced bootstrapping
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/core-concepts/bootstrapping/creating-and-managing-initializers" class="">
+                        Creating and managing initializers
+                    </a>
+                </div>
+                        
+                    </div>
+                </details>
+                        
+                    </div>
+                </details>
+                        
+</nav>            </aside>
+    <main class="docs-content">
+            <h1>Creating and Managing Initializers</h1>
+<p>Initializers are the building blocks of a PHPNomad application. Think of them as specialized workers, each with a
+specific job to do when your application starts up. Each initializer handles one aspect of getting your application
+ready to run - whether that's setting up database connections, loading configuration files, or connecting to external
+services.</p>
+<h2>What Makes Up an Initializer?</h2>
+<p>At its simplest, an initializer is a PHP class that implements one or more special interfaces. These interfaces tell
+PHPNomad what the application can do:</p>
+<pre><code class="language-php">class MyInitializer implements HasClassDefinitions 
+{
+    public function getClassDefinitions(): array
+    {
+        return [
+            // Define your class bindings here
+            MyConcreteClass::class =&gt; MyInterface::class
+        ];
+    }
+}
+</code></pre>
+<h3>Core Interfaces</h3>
+<p>PHPNomad supports several interfaces that give initializers different capabilities:</p>
+<ul>
+<li><code>HasClassDefinitions</code>: For binding interfaces to concrete implementations</li>
+<li><code>HasEventBindings</code>: For setting up event listeners and transformers</li>
+<li><code>HasListeners</code>: For registering event listeners</li>
+<li><code>Loadable</code>: For running code during initialization</li>
+<li><code>CanSetContainer</code>: Gives your initializer access to the dependency container</li>
+</ul>
+<h2>Types of Initializers</h2>
+<h3>Shared Initializers</h3>
+<p>These initializers contain core business logic that works anywhere. They should never know about specific platforms -
+their job is to set up the fundamental pieces of your application:</p>
+<pre><code class="language-php">class EmailServiceInitializer implements HasClassDefinitions
+{
+    public function getClassDefinitions(): array
+    {
+        return [
+            // Notice how this binds generic email interfaces
+            // with no knowledge of any specific platform
+            SmtpMailer::class =&gt; EmailStrategy::class,
+            EmailTemplateEngine::class =&gt; TemplateRenderer::class
+        ];
+    }
+}
+</code></pre>
+<h3>Platform Integration Initializers</h3>
+<p>These initializers handle adapting your application for specific platforms. Instead of adding platform checks to our
+shared initializers, we create separate initializers that focus solely on platform integration:</p>
+<pre><code class="language-php">class WordPressEmailIntegration implements HasClassDefinitions
+{
+    public function getClassDefinitions(): array
+    {
+        return [
+            // This initializer handles WordPress-specific bindings
+            WordPressMailer::class =&gt; EmailStrategy::class
+        ];
+    }
+}
+</code></pre>
+<h3>Event-Driven Initializers</h3>
+<p>Many initializers work with events to set up listeners and bindings:</p>
+<pre><code class="language-php">class UserEventsInitializer implements HasEventBindings
+{
+    public function getEventBindings(): array
+    {
+        return [
+            UserCreated::class =&gt; [
+                'user_register',
+                ['transformer' =&gt; function($userId) {
+                    return new UserCreated(new User($userId));
+                }]
+            ]
+        ];
+    }
+}
+</code></pre>
+<h2>Best Practices</h2>
+<h3>Keep It Focused</h3>
+<p>Each initializer should do one thing and do it well. If you find your initializer handling multiple unrelated tasks,
+it's time to split it up.</p>
+<p>Good:</p>
+<pre><code class="language-php">class EmailServiceInitializer implements HasClassDefinitions
+{
+    public function getClassDefinitions(): array
+    {
+        return [
+            SmtpMailer::class =&gt; EmailService::class
+        ];
+    }
+}
+</code></pre>
+<p>Not so good:</p>
+<pre><code class="language-php">class ServiceInitializer implements HasClassDefinitions
+{
+    public function getClassDefinitions(): array
+    {
+        return [
+            SmtpMailer::class =&gt; EmailService::class,
+            MySqlDatabase::class =&gt; Database::class,
+            RedisCache::class =&gt; CacheService::class
+            // Too many unrelated services!
+        ];
+    }
+}
+</code></pre>
+<h3>Handle Dependencies Wisely</h3>
+<p>Let the container manage dependencies instead of creating them directly:</p>
+<pre><code class="language-php">class UserServiceInitializer implements Loadable, CanSetContainer
+{
+    use HasSettableContainer;
+
+    public function load(): void
+    {
+        // Let the container provide the dependency
+        $userService = $this-&gt;container-&gt;get(UserService::class);
+        $userService-&gt;initialize();
+    }
+}
+</code></pre>
+<h2>Common Patterns</h2>
+<h3>Setting Up Services</h3>
+<p>Register your services with the container:</p>
+<pre><code class="language-php">class ServiceInitializer implements HasClassDefinitions
+{
+    public function getClassDefinitions(): array
+    {
+        return [
+            // Single binding
+            ConcreteService::class =&gt; ServiceInterface::class,
+            
+            // Multiple interfaces
+            DatabaseService::class =&gt; [
+                QueryInterface::class,
+                ConnectionInterface::class
+            ]
+        ];
+    }
+}
+</code></pre>
+<h3>Event Listeners</h3>
+<p>Set up event listeners in your initializer:</p>
+<pre><code class="language-php">class EventInitializer implements HasListeners
+{
+    public function getListeners(): array
+    {
+        return [
+            UserCreated::class =&gt; UserCreatedHandler::class,
+            OrderPlaced::class =&gt; [
+                SendOrderConfirmation::class,
+                UpdateInventory::class
+            ]
+        ];
+    }
+}
+</code></pre>
+<h3>Mutations</h3>
+<p>Register mutation handlers for transforming data:</p>
+<pre><code class="language-php">class DataMutationInitializer implements HasMutations
+{
+    public function getMutations(): array
+    {
+        return [
+            UserData::class =&gt; [
+                'sanitize_user_input',
+                'validate_user_data'
+            ]
+        ];
+    }
+}
+</code></pre>
+<h2>Things to Avoid</h2>
+<ol>
+<li><strong>Don't Mix Platform-Specific Code</strong>: Keep your shared initializers platform-agnostic.</li>
+<li><strong>Avoid Direct Platform Dependencies</strong>: Use interfaces instead of concrete platform classes.</li>
+<li><strong>Don't Overuse Loadable::load</strong>: Save it for truly necessary initialization tasks.</li>
+<li><strong>Keep Initializers Small</strong>: If an initializer is doing too much, split it up.</li>
+</ol>
+<h2>Real-World Example</h2>
+<p>Here's a complete example of setting up authentication in a way that works across platforms:</p>
+<pre><code class="language-php">// Core authentication setup
+class AuthenticationInitializer implements HasClassDefinitions, Loadable, CanSetContainer
+{
+    use HasSettableContainer;
+
+    public function getClassDefinitions(): array
+    {
+        return [
+            // Core authentication services
+            AuthenticationService::class =&gt; AuthenticationInterface::class,
+            TokenGenerator::class =&gt; TokenGeneratorInterface::class,
+            
+            // Multiple interface bindings
+            UserRepository::class =&gt; [
+                UserRepositoryInterface::class,
+                IdentityStoreInterface::class
+            ]
+        ];
+    }
+
+    public function load(): void
+    {
+        // One-time setup tasks
+        $authService = $this-&gt;container-&gt;get(AuthenticationInterface::class);
+        $authService-&gt;initialize();
+    }
+}
+
+// WordPress-specific authentication integration
+class WordPressAuthIntegration implements HasClassDefinitions
+{
+    public function getClassDefinitions(): array
+    {
+        return [
+            WordPressAuthProvider::class =&gt; AuthProviderInterface::class
+        ];
+    }
+}
+</code></pre>
+<p>Remember, good initializers are like good tools - they do one job well, work reliably, and make your life easier. By
+following these patterns and practices, you'll build a foundation that's easy to maintain and adapt as your needs
+change.</p>
+<p>The key to success with PHPNomad initializers is maintaining a clear separation between your core business logic and
+platform-specific integrations. This separation allows your application to remain truly portable while still integrating
+smoothly with any platform you need to support.</p>
+
+    </main>
+</div>
+
+<footer>
+    <p class="mod--center">These docs were built with <a href="https://www.github.com/phpnomad/documentation">a static site generator that was made with PHPNomad.</a></p>
+<small class="mod--center">Made and maintained by the people at <a href="https://www.novatori.us">Novatorius</a>. <em>Mente Nova!</em></small></footer>
+</body>
+</html>
+

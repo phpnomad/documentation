@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <link rel="stylesheet" href="/public/assets/pico.min.css">
+    <link rel="stylesheet" href="/public/assets/prism.css">
+    <link rel="stylesheet" href="/public/assets/style.css">
+    <script src="/public/assets/prism.js"></script>
+</head>
+<body>
+<header>
+    <nav>
+    <a href="https://www.github.com/phpnomad">GitHub</a>
+</nav></header>
+
+<div class="docs-layout">
+    <aside class="docs-sidebar">
+                    <a href="/"><img src="/public/assets/logo.png" alt="PHPNomad Logo"/></a>
+            <nav>
+    
+                                        <details class="nav-section" >
+                    <summary>
+                                                    Packages
+                                            </summary>
+                    <div class="nav-group">
+                                                            <details class="nav-section" >
+                    <summary>
+                                                    Utils
+                                            </summary>
+                    <div class="nav-group">
+                                                            <details class="nav-section" >
+                    <summary>
+                                                    Processors
+                                            </summary>
+                    <div class="nav-group">
+                                                            <div class="nav-item">
+                    <a href="/packages/utils/processors/list-sorter" class="">
+                        List sorter
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/packages/utils/processors/array-processor" class="">
+                        Array processor
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/packages/utils/processors/list-filter" class="">
+                        List filter
+                    </a>
+                </div>
+                        
+                    </div>
+                </details>
+                                                <div class="nav-item">
+                    <a href="/packages/utils/array-helper" class="">
+                        Array helper
+                    </a>
+                </div>
+                        
+                    </div>
+                </details>
+                        
+                    </div>
+                </details>
+                                                <details class="nav-section" open>
+                    <summary>
+                                                    Core concepts
+                                            </summary>
+                    <div class="nav-group">
+                                                            <details class="nav-section" open>
+                    <summary>
+                                                    Bootstrapping
+                                            </summary>
+                    <div class="nav-group">
+                                                            <div class="nav-item">
+                    <a href="/core-concepts/bootstrapping/platform-integrations" class="">
+                        Platform integrations
+                    </a>
+                </div>
+                                                <details class="nav-section" >
+                    <summary>
+                                                    Initializers
+                                            </summary>
+                    <div class="nav-group">
+                                                            <div class="nav-item">
+                    <a href="/core-concepts/bootstrapping/initializers/event-listeners" class="">
+                        Event listeners
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/core-concepts/bootstrapping/initializers/event-binding" class="">
+                        Event binding
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/core-concepts/bootstrapping/initializers/facades" class="">
+                        Facades
+                    </a>
+                </div>
+                        
+                    </div>
+                </details>
+                                                <div class="nav-item">
+                    <a href="/core-concepts/bootstrapping/introduction" class="">
+                        Introduction
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/core-concepts/bootstrapping/advanced-bootstrapping" class="">
+                        Advanced bootstrapping
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/core-concepts/bootstrapping/creating-and-managing-initializers" class="">
+                        Creating and managing initializers
+                    </a>
+                </div>
+                        
+                    </div>
+                </details>
+                        
+                    </div>
+                </details>
+                        
+</nav>            </aside>
+    <main class="docs-content">
+            <h1>Introduction to PHPNomad Bootstrapping</h1>
+<p>The bootstrapper is where everything begins in a PHPNomad application. It's responsible for:</p>
+<ul>
+<li>Setting up your application</li>
+<li>Loading all the pieces in the right order</li>
+<li>Making sure everything can talk to each other</li>
+</ul>
+<p>Here's what it looks like in its simplest form:</p>
+<pre><code class="language-php">$container = new Container();
+$bootstrapper = new Bootstrapper(
+    $container,
+    new MyAppSetup(), // A custom initializer created for your application
+    new DatabaseSetup(), // An initializer that ensures the system knows how to query data
+    // Other initializers loaded here as needed, such as a WordPress integration, or various Symfony implementations.
+);
+$bootstrapper-&gt;load();
+</code></pre>
+<h2>Key Ideas Behind PHPNomad</h2>
+<h3>Your Code Comes First</h3>
+<p>Instead of building your code to fit into a specific platform or system, PHPNomad lets you build your application the
+way you want. Then, the platform adapts to work with your code. This makes it much easier if you ever need to move your
+code to a different system.</p>
+<h3>Breaking Things into Pieces</h3>
+<p>Rather than putting all your setup code in one place, PHPNomad encourages you to break it into smaller, focused pieces
+called initializers. Each initializer has one job, making your code easier to understand and change.</p>
+<h3>Keeping Things Separate</h3>
+<p>Your application's core logic stays separate from platform-specific code. This means you can change how your application
+works with different platforms without having to rewrite your main application code.</p>
+<h2>How Setup Works</h2>
+<p>When you start your application:</p>
+<ol>
+<li>First, PHPNomad creates a central hub (we call it a container) that helps different parts of your code find each
+other</li>
+<li>Then, it runs through your setup steps one by one</li>
+<li>Finally, it locks everything down so nothing can accidentally change how things are connected</li>
+</ol>
+<p>This process helps keep your application stable and predictable.</p>
+<h2>Built for Change</h2>
+<p>PHPNomad is designed to make your code flexible:</p>
+<ul>
+<li>Your core application code doesn't need to know about the platform it's running on</li>
+<li>Platform-specific code is kept separate and can be easily changed</li>
+<li>You can move your application between different systems without rewriting everything</li>
+</ul>
+<p>This means you can start building for one platform today, but keep your options open for the future. Most of your code
+will work just fine if you decide to move it somewhere else later.</p>
+<p>You're not locked into one way of doing things - and that's the whole point of PHPNomad.</p>
+
+    </main>
+</div>
+
+<footer>
+    <p class="mod--center">These docs were built with <a href="https://www.github.com/phpnomad/documentation">a static site generator that was made with PHPNomad.</a></p>
+<small class="mod--center">Made and maintained by the people at <a href="https://www.novatori.us">Novatorius</a>. <em>Mente Nova!</em></small></footer>
+</body>
+</html>
+
