@@ -1,14 +1,19 @@
 #!/usr/bin/env php
 <?php
 
-require __DIR__.'/vendor/autoload.php';
+require_once './vendor/autoload.php';
 
 use PHPNomad\Events\Interfaces\EventStrategy;
 use PHPNomad\Static\Application;
+use PHPNomad\Static\Events\StaticCompileInitiated;
 use PHPNomad\Static\Events\StaticCompileRequested;
 
-(new Application(__FILE__))
+$application = (new Application(__FILE__))
   ->cli()
-  ->setConfig('docsRoot','./configs/app.json')
-  ->get(EventStrategy::class)
-  ->broadcast(new StaticCompileRequested());
+  ->setConfig('docsRoot', './configs/app.json');
+
+$application->get(EventStrategy::class)
+            ->broadcast(new StaticCompileInitiated());
+
+$application->get(EventStrategy::class)
+            ->broadcast(new StaticCompileRequested());

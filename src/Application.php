@@ -60,7 +60,9 @@ final class Application
 
         (new Bootstrapper(
           $this->container,
-          new ConsoleInitializer()
+          new ConsoleInitializer(),
+          new RouterInitializer()
+
         ))->load();
 
         return $this;
