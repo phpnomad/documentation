@@ -1,0 +1,33 @@
+{
+    "name": "phpnomad/static",
+    "description": "Static site generator using PHPNomad",
+    "type": "project",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "PHPNomad\\Static\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Alex Standiford",
+            "email": "alex@standiford.us"
+        }
+    ],
+    "require": {
+        "phpnomad/di": "^1.0",
+        "phpnomad/loader": "^1.0",
+        "phpnomad/config": "^1.0",
+        "phpnomad/array-json-config": "^1.0",
+        "phpnomad/event": "^1.0",
+        "filp/whoops": "^2.16",
+        "phpnomad/http": "^1.0",
+        "phpnomad/template": "^1.0",
+        "symfony/finder": "^7.2",
+        "phpnomad/utils": "^1.0",
+        "nikic/fast-route": "^1.3",
+        "league/commonmark": "^2.6",
+        "phpnomad/symfony-event-dispatcher-integration": "^1.0",
+        "phpnomad/twig-integration": "^1.0"
+    }
+}
