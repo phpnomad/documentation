@@ -1,5 +1,5 @@
 {
-    "name": "phpnomad/static",
+    "name": "phpnomad/documentation",
     "description": "Static site generator using PHPNomad",
     "type": "project",
     "license": "MIT",
