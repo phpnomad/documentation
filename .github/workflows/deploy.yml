@@ -35,7 +35,7 @@ jobs:
         run: composer install --prefer-dist --no-progress
 
       - name: Build static site
-        run: php bin/compile
+        run: php generate.php
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
