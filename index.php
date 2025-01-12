@@ -15,8 +15,8 @@ $whoops->register();
 $event = new RequestInitiated(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
 
 (new Application(__FILE__))
+  ->setConfig('app','./configs/app.json')
   ->dev()
-  ->setConfig('docsRoot','./configs/app.json')
   ->get(EventStrategy::class)
   ->broadcast($event);
 

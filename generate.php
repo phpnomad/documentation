@@ -9,8 +9,8 @@ use PHPNomad\Static\Events\StaticCompileInitiated;
 use PHPNomad\Static\Events\StaticCompileRequested;
 
 $application = (new Application(__FILE__))
-  ->cli()
-  ->setConfig('docsRoot', './configs/app.json');
+  ->setConfig('app', './configs/app.json')
+  ->cli();
 
 $application->get(EventStrategy::class)
             ->broadcast(new StaticCompileInitiated());

@@ -14,11 +14,11 @@ class ConfigProvider implements TwigConfigProvider
 
     public function getTemplateDirectory() : string
     {
-        return $this->config->get('templateRoot', 'public');
+        return $this->config->get('app.templateRoot', 'public');
     }
 
     public function getDocsRootDirectory(): string
     {
-        return $this->config->get('docsRoot', 'public/docs');
+        return $this->config->get('app.docsRoot', 'public/docs');
     }
 }
