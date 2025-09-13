@@ -94,6 +94,23 @@ class UserEventsInitializer implements HasEventBindings
 }
 ```
 
+### REST Initializers
+
+For applications exposing REST APIs, initializers can register controllers:
+
+```php
+class ApiInitializer implements HasControllers
+{
+    public function getControllers(): array
+    {
+        return [
+            UserController::class,
+            ProductController::class
+        ];
+    }
+}
+```
+
 ## Best Practices
 
 ### Keep It Focused

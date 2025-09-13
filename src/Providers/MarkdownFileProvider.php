@@ -18,6 +18,7 @@ class MarkdownFileProvider
         return (new Finder())
           ->files()
           ->in($this->configProvider->getDocsRootDirectory())
-          ->name('*.md');
+          ->name('*.md')
+          ->sortByName(true);
     }
 }
