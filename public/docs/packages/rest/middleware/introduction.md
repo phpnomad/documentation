@@ -155,6 +155,9 @@ To attach middleware to a controller, implement the `PHPNomad\Rest\Interfaces\Ha
 The example below shows a `GetUser` controller that uses the `GetRecordFromRequest` middleware to fetch a user by ID.
 This uses the GetRecordFromRequest middleware defined above.
 
+Note that before it passes the request to the middleware, it also
+uses [SetTypeMiddleware](./included-middleware/set-type-middleware) to ensure the `id` parameter is always an integer.
+
 ```php
 /**
  * Example controller showing how to get a user
@@ -212,6 +215,7 @@ final class GetUser implements Controller, HasMiddleware
     public function getMiddleware(Request $request): array
     {
         return [
+            new SetTypeMiddleware('id', BasicTypes::Integer), // Coerce 'id' to int
             $this->getRecordMiddleware
         ];
     }

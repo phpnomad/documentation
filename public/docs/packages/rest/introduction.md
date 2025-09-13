@@ -29,7 +29,7 @@ runs inside a host), you get REST endpoints that can move between stacks without
 When a request enters a system wired with `phpnomad/rest`, it moves through a consistent sequence of steps:
 
 ```
-Route → Middleware → Validations → Controller → Response → Interceptors
+Route → Middleware → Controller → Response → Interceptors
 ```
 
 ### Route
@@ -41,7 +41,7 @@ The **RestStrategy** matches an incoming request to a registered controller base
 
 ### Middleware
 
-Middleware runs **before** your controller logic.
+[Middleware](./middleware/introduction) runs **before** your controller logic.
 
 * Can short-circuit (e.g., fail auth, block a bad request).
 * Can enrich context (e.g., inject a current user, parse query filters).
@@ -49,7 +49,9 @@ Middleware runs **before** your controller logic.
 
 ### Validations
 
-Validation sets define **input contracts** for the request.
+[Validation](./validations/introduction) sets define **input contracts** for the request. These are set using a
+middleware, so you can control when
+they run.
 
 * Ensure required fields are present.
 * Enforce types and formats (e.g., integer IDs, valid emails).
@@ -57,7 +59,7 @@ Validation sets define **input contracts** for the request.
 
 ### Controller Handle Method
 
-The controller is the **core of the endpoint**.
+The [controller](./controllers) is the **core of the endpoint**.
 
 * Business logic goes here: read, mutate, return.
 * Sees a request context already shaped by middleware and validated inputs.
@@ -65,8 +67,13 @@ The controller is the **core of the endpoint**.
 
 ### Interceptors
 
-Interceptors run **after the response is prepared**.
+[Interceptors](./interceptors/introduction) run **after the controller has produced a response** and **before the
+response leaves the pipeline**.
 
-* Side effects only — they do not change the response sent to the client.
-* Common uses: emit domain events, write audit logs, push metrics.
-* Errors here are isolated so they don’t break the response lifecycle.
+They're usually used for two main purposes:
+
+1. **Adapt the response** — reshape or enrich the response object without touching controller code.
+2. **Perform side effects** — emit events, write audit logs, push metrics, etc.
+
+Because interceptors sit at the boundary, they’re an ideal place to keep controllers lean while still achieving
+consistent output formats and cross-cutting behavior.
