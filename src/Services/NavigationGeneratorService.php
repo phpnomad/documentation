@@ -15,7 +15,7 @@ class NavigationGeneratorService
 
     public function generateItems(?Route $route = null): array
     {
-        $currentPath = $route ? $route->endpoint : ''; // Use the endpoint as the current path
+        $currentPath = $route ? $route->endpoint : '';
         $finder = $this->fileProvider->getMarkdownFiles();
         $structure = [];
 
@@ -58,7 +58,10 @@ class NavigationGeneratorService
             }
         }
 
-        // Process the open states
+        // 🔹 Sort: files first, then folders; both A–Z (natural, case-insensitive)
+        $this->sortStructure($structure);
+
+        // Process open states
         foreach ($structure as &$section) {
             $this->processOpenStates($section, $currentPath);
         }
@@ -70,15 +73,11 @@ class NavigationGeneratorService
     {
         $isOpen = false;
 
-        // Check if the current item matches the current path
-        if (isset($item['path'])) {
-            if ($item['path'] === $currentPath) {
-                $isOpen = true;
-            }
+        if (isset($item['path']) && $item['path'] === $currentPath) {
+            $isOpen = true;
         }
 
-        // Process children and check if any child is open
-        if (isset($item['children']) && !empty($item['children'])) {
+        if (!empty($item['children'])) {
             foreach ($item['children'] as &$child) {
                 if ($this->processOpenStates($child, $currentPath)) {
                     $isOpen = true;
@@ -86,19 +85,16 @@ class NavigationGeneratorService
             }
         }
 
-        // Set the isOpen state for the current item
         $item['isOpen'] = $isOpen;
-
         return $isOpen;
     }
 
     private function flattenStructure(array $structure): array
     {
         $result = [];
-        foreach ($structure as $key => $item) {
+        foreach ($structure as $item) {
             if (isset($item['title'])) {
                 $entry = ['title' => $item['title']];
-
                 if (isset($item['path'])) {
                     $entry['path'] = $item['path'];
                 }
@@ -108,7 +104,6 @@ class NavigationGeneratorService
                 if (!empty($item['children'])) {
                     $entry['children'] = $this->flattenStructure($item['children']);
                 }
-
                 $result[] = $entry;
             } else {
                 $result[] = $item;
@@ -120,5 +115,45 @@ class NavigationGeneratorService
     private function formatTitle(string $path): string
     {
         return ucfirst(str_replace(['-', '_'], ' ', $path));
+    }
+
+    /**
+     * Recursively sort a nav list:
+     * - Files (no 'children') first
+     * - Folders ('children' present) last
+     * - Then A–Z by 'title' (natural, case-insensitive)
+     */
+    private function sortStructure(array &$items): void
+    {
+        // Normalize to a numeric-indexed list (removes string keys from folder names)
+        $items = array_values($items);
+
+        usort($items, function (array $a, array $b): int {
+            $aIsFolder = isset($a['children']) && is_array($a['children']);
+            $bIsFolder = isset($b['children']) && is_array($b['children']);
+
+            // files (false) before folders (true)
+            $typeCmp = ((int)$aIsFolder) <=> ((int)$bIsFolder);
+            if ($typeCmp !== 0) {
+                return $typeCmp;
+            }
+
+            $titleA = $a['title'] ?? '';
+            $titleB = $b['title'] ?? '';
+            $nameCmp = strnatcasecmp($titleA, $titleB);
+            if ($nameCmp !== 0) {
+                return $nameCmp;
+            }
+
+            // Tie-breaker for identical titles
+            return strnatcasecmp($a['path'] ?? '', $b['path'] ?? '');
+        });
+
+        // Recurse into folders
+        foreach ($items as &$item) {
+            if (isset($item['children']) && is_array($item['children'])) {
+                $this->sortStructure($item['children']);
+            }
+        }
     }
 }

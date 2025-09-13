@@ -23,9 +23,9 @@ Middleware has two clear responsibilities:
 ## What middleware is not
 
 1. It is not where you perform post-response side effects, such as triggering events. That's the job
-   of [interceptors](../interceptors/introduction)
+   of [interceptors](/packages/rest/middleware/interceptors/introduction)
 2. It is not where you encode your domain’s validation rules. That's the job
-   of [validations](../validations/introduction).
+   of [validations](/packages/rest/middleware/validations/introduction).
 3. It is not where you write business logic. That's the job of the controller.
 
 ## The middleware contract
@@ -156,7 +156,7 @@ The example below shows a `GetUser` controller that uses the `GetRecordFromReque
 This uses the GetRecordFromRequest middleware defined above.
 
 Note that before it passes the request to the middleware, it also
-uses [SetTypeMiddleware](./included-middleware/set-type-middleware) to ensure the `id` parameter is always an integer.
+uses [SetTypeMiddleware](/packages/rest/middleware/included-middleware/set-type-middleware) to ensure the `id` parameter is always an integer.
 
 ```php
 /**

@@ -1,10 +1,13 @@
 # Array Helper
 
-The `ArrayHelper` class contains several helper methods that make working with native PHP arrays a little easier. These methods are all statically accessible, and can be chained together using the [Array Processor](./processors/array-processor).
+The `ArrayHelper` class contains several helper methods that make working with native PHP arrays a little easier. These
+methods are all statically accessible, and can be chained together using
+the [Array Processor](/packages/utils/processors/array-processor).
 
 ## Process
 
-Instantiates an [Array Processor](./processors/array-processor), which allows an array to have any method in `ArrayHelper` used in a chain.
+Instantiates an [Array Processor](/packages/utils/processors/array-processor), which allows an array to have any method
+in `ArrayHelper` used in a chain.
 
 ```php
 // Outputs "1, 3, bar, baz, foo"
@@ -25,7 +28,8 @@ ArrayHelper::whereNotNull(['foo','bar','baz',null]);
 
 ## Each
 
-Calls the specified callback on each item in a foreach loop. If the array is associative, the key is retained. Functional methods like this are particularly useful because they can require type safety in your callbacks.
+Calls the specified callback on each item in a foreach loop. If the array is associative, the key is retained.
+Functional methods like this are particularly useful because they can require type safety in your callbacks.
 
 The example below converts an array of tag names keyed by their URL-friendly slug into hashtags.
 
@@ -62,7 +66,8 @@ ArrayHelper::before(['foo','bar','baz'],1);
 
 ## Dot
 
-Fetches an item from an array using a dot notation. Throws an `ItemNotFound` if the item provided could not be located in the array.
+Fetches an item from an array using a dot notation. Throws an `ItemNotFound` if the item provided could not be located
+in the array.
 
 ```php
 use PHPNomad\Helpers\ArrayHelper;
@@ -268,9 +273,12 @@ ArrayHelper::isAssociative(['foo', 'bar', 'baz']);
 
 ## Normalize
 
-Recursively sorts, and optionally mutates an array of arrays. Useful when preparing for caching purposes because it ensures that any array that is technically identical, although in a different order, is the same. This can also convert a closure into a format that can be safely converted into a hash.
+Recursively sorts, and optionally mutates an array of arrays. Useful when preparing for caching purposes because it
+ensures that any array that is technically identical, although in a different order, is the same. This can also convert
+a closure into a format that can be safely converted into a hash.
 
-Generally, this is used to prepare an array to be converted into a consistent hash, regardless of what order the items in the array are stored.
+Generally, this is used to prepare an array to be converted into a consistent hash, regardless of what order the items
+in the array are stored.
 
 ```php
 $cachedQuery = [
@@ -307,7 +315,8 @@ ArrayHelper::normalize($cachedQuery)
 
 ## Proxies
 
-There are also several methods that serve as direct proxies for `array_*` functions, with the only difference being that the order of the arguments always put the input array as the first argument (haystack comes first).
+There are also several methods that serve as direct proxies for `array_*` functions, with the only difference being that
+the order of the arguments always put the input array as the first argument (haystack comes first).
 
 * map => arrayMap
 * reduce => arrayReduce

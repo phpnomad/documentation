@@ -1,6 +1,6 @@
 # Array Processor
 
-The Array Processor makes it possible to pass a single array through multiple chained mutation methods, and then output the result as either the transformed array, or a string. It supports all [Array Helper](../array-helper) methods in a chained form.
+The Array Processor makes it possible to pass a single array through multiple chained mutation methods, and then output the result as either the transformed array, or a string. It supports all [Array Helper](/packages/utils/array-helper) methods in a chained form.
 
 ## Extracting The Array
 

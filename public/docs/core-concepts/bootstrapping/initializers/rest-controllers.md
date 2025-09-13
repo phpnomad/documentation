@@ -24,7 +24,7 @@ This is a very basic example of a controller, and does not include middleware or
 controllers, you’ll often also implement `HasMiddleware` / `HasValidations`. See real-world examples
 where `getEndpoint()`, `getMethod()`, and `getValidations()` are used together.
 
-See the [Rest](./rest/rest.md) package documentation for fuller examples.
+See the [Rest](/packages/rest/introduction) package documentation for fuller examples.
 
 ```php
 <?php

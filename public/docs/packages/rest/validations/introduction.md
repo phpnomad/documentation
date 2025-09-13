@@ -20,7 +20,7 @@ match a regex,” and apply them consistently wherever needed.
 You don’t call validations directly. Instead, PHPNomad provides the `ValidationMiddleware`, a built-in middleware that
 automatically runs the validations you’ve declared for a controller or another provider.
 
-This middleware iterates over each field’s [Validation Set](./validation-set), checking if the field is required and
+This middleware iterates over each field’s [Validation Set](/packages/rest/validations/validation-set), checking if the field is required and
 applying each validation rule in turn.
 
 If any rules fail, the middleware throws a `ValidationException`, and the system generates a structured error response.

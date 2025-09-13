@@ -41,7 +41,7 @@ The **RestStrategy** matches an incoming request to a registered controller base
 
 ### Middleware
 
-[Middleware](./middleware/introduction) runs **before** your controller logic.
+[Middleware](/packages/rest/middleware/introduction) runs **before** your controller logic.
 
 * Can short-circuit (e.g., fail auth, block a bad request).
 * Can enrich context (e.g., inject a current user, parse query filters).
@@ -49,7 +49,7 @@ The **RestStrategy** matches an incoming request to a registered controller base
 
 ### Validations
 
-[Validation](./validations/introduction) sets define **input contracts** for the request. These are set using a
+[Validation](/packages/rest/validations/introduction) sets define **input contracts** for the request. These are set using a
 middleware, so you can control when
 they run.
 
@@ -59,7 +59,7 @@ they run.
 
 ### Controller Handle Method
 
-The [controller](./controllers) is the **core of the endpoint**.
+The [controller](/packages/rest/controllers) is the **core of the endpoint**.
 
 * Business logic goes here: read, mutate, return.
 * Sees a request context already shaped by middleware and validated inputs.
@@ -67,7 +67,7 @@ The [controller](./controllers) is the **core of the endpoint**.
 
 ### Interceptors
 
-[Interceptors](./interceptors/introduction) run **after the controller has produced a response** and **before the
+[Interceptors](/packages/rest/interceptors/introduction) run **after the controller has produced a response** and **before the
 response leaves the pipeline**.
 
 They're usually used for two main purposes:

@@ -347,8 +347,8 @@ When in doubt, lean towards simplicity. These practices help controllers stay pr
 * Keep controllers lean: orchestrate the request/response, don’t embed business rules.
 * Inject services via the constructor so controllers are easy to test and extend.
 * Always set a status: don’t rely on defaults, be explicit about success and failure codes.
-* Don’t validate or authorize here. Trust [middleware](../middleware/introduction)
-  and [validations](../validations/introduction) to handle that
+* Don’t validate or authorize here. Trust [middleware]/packages/rest/middleware/introduction)
+  and [validations](/packages/rest/validations/introduction) to handle that
   before the controller runs.
 
 ## When to Add Complexity
@@ -360,4 +360,4 @@ work like logging or publishing events.
 These are declared by implementing additional interfaces on the controller, but their logic lives outside it. This
 separation keeps controllers focused on shaping the response while making each piece reusable across endpoints. For a
 broader picture of how these phases work together, see
-the [request lifecycle](../../introduction#the-request-lifecycle).
+the [request lifecycle](/packages/rest/introduction#the-request-lifecycle).

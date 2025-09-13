@@ -123,7 +123,7 @@ these concerns separate ensures that shared initializers remain reusable across 
 If you’re debugging a platform-specific initializer, make sure the problem isn’t due to the platform’s lifecycle or API.
 For example, in WordPress, actions and filters may need to be registered at a specific point during initialization.
 
-For more information on this, check out [Event Bindings](./core-concepts/bootstrapping/initializers/event-binding.md)
+For more information on this, check out [Event Bindings](/core-concepts/bootstrapping/initializers/event-binding)
 
 ## Expanding Integrations
 
