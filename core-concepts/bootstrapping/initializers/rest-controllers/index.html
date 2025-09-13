@@ -275,208 +275,84 @@
                         
 </nav>            </aside>
     <main class="docs-content">
-            <h1 id="event-bindings">Event Bindings</h1>
-<h2 id="what-are-event-bindings">What are Event Bindings?</h2>
-<p>Event bindings are like adapters that connect your application's events to a platform's native event system. Think of
-them as translators that help your code communicate with different platforms (like WordPress, Laravel, or your own
-custom system) without needing to know their specific &quot;language&quot;.</p>
-<h2 id="why-use-event-bindings">Why Use Event Bindings?</h2>
-<p>The beauty of event bindings is that they keep your core application code clean and portable. Instead of embedding
-platform-specific code throughout your application, you create a single place where your system's events connect to the
-platform.</p>
-<p>For example, let's say you have an e-commerce application and want to track when someone uses a coupon code. Rather than
-spreading WordPress-specific code everywhere, you can use event bindings to cleanly connect WordPress's coupon events to
-your system.</p>
-<h2 id="how-event-bindings-work">How Event Bindings Work</h2>
-<p>Event bindings consist of three main parts:</p>
-<ol>
-<li>Your application's event (like <code>CouponApplied</code> or <code>ReportCreated</code>)</li>
-<li>The platform's action or event to listen for</li>
-<li>A transformer that converts the platform's data into your application's event</li>
-</ol>
-<p>Here's a basic example:</p>
-<pre><code class="language-php">class WooCommerceIntegration implements HasEventBindings 
-{
-    public function getEventBindings(): array 
-    {
-        return [
-            // Your event =&gt; Platform event configuration
-            CouponApplied::class =&gt; [
-                [
-                    'action' =&gt; 'woocommerce_applied_coupon',
-                    'transformer' =&gt; function($couponCode) {
-                        return new CouponApplied($couponCode);
-                    }
-                ]
-            ]
-        ];
-    }
-}
-</code></pre>
-<p>In this example:</p>
+            <h1 id="rest-controllers-in-phpnomad">REST Controllers in PHPNomad</h1>
+<p>REST controllers define an <strong>endpoint</strong>, an <strong>HTTP method</strong>, and <strong>how to produce a response</strong>—and they stay portable
+across hosts.</p>
+<p>Instead of registering routes inline, PHPNomad discovers them through <strong>Initializers</strong> that implement **<code>HasControllers</code>
+**. This keeps your API definitions decoupled from the host and mirrors how you already register event listeners
+with <code>HasListeners</code>.</p>
+<h2 id="the-basics-how-registration-works">The Basics: How registration works</h2>
 <ul>
-<li><code>CouponApplied</code> is your application's event</li>
-<li><code>woocommerce_applied_coupon</code> is WooCommerce's action</li>
-<li>The transformer function converts WooCommerce's coupon code into your <code>CouponApplied</code> event</li>
+<li><strong>Controller</strong>: a small class implementing, at minimum, <code>Controller</code></li>
+<li><strong>Initializer</strong> implementing <code>HasControllers</code>: returns a list of controllers to load.</li>
+<li><strong>Boostrapper</strong> configured to utilize the initializer.
+See <a href="/core-concepts/bootstrapping/creating-and-managing-initializers">Creating and Managing Initializers</a> for more
+information</li>
 </ul>
-<h2 id="advanced-usage-multiple-bindings">Advanced Usage: Multiple Bindings</h2>
-<p>Sometimes you might want to listen for the same event from different sources. You can do this by returning an array of
-bindings:</p>
-<pre><code class="language-php">public function getEventBindings(): array 
-{
-    return [
-        OrderCreated::class =&gt; [
-            // Listen for WooCommerce orders
-            [
-                'action' =&gt; 'woocommerce_order_status_completed',
-                'transformer' =&gt; [$this-&gt;wooCommerceTransformer, 'toOrderCreated']
-            ],
-            // Also listen for Easy Digital Downloads orders
-            [
-                'action' =&gt; 'edd_complete_purchase',
-                'transformer' =&gt; [$this-&gt;eddTransformer, 'toOrderCreated']
-            ]
-        ]
-    ];
-}
-</code></pre>
-<h2 id="working-with-transformers">Working with Transformers</h2>
-<p>Transformers are functions that:</p>
-<ol>
-<li>Receive data from the platform's event</li>
-<li>Convert that data into your application's format</li>
-<li>Return either your event object or null</li>
-</ol>
-<p>If a transformer returns null, no event is triggered. This is useful for conditional events:</p>
-<pre><code class="language-php">'transformer' =&gt; function($post_id, $post) {
-    // Only create event for published posts
-    if ($post-&gt;post_status !== 'publish') {
-        return null;
-    }
-    
-    return new PostPublished($post_id);
-}
-</code></pre>
-<h2 id="best-practices">Best Practices</h2>
-<ol>
-<li>
-<p><strong>Keep Transformers Clean</strong>: Transformers should focus only on converting data. Heavy processing should happen
-elsewhere.</p>
-</li>
-<li>
-<p><strong>Use Service Classes</strong>: For complex transformations, create dedicated service classes instead of inline functions:</p>
-</li>
-</ol>
-<pre><code class="language-php">'transformer' =&gt; [$this-&gt;postTransformerService, 'toPostEvent']
-</code></pre>
-<ol start="3">
-<li><strong>Handle Errors Gracefully</strong>: Transformers should handle missing or invalid data without crashing:</li>
-</ol>
-<pre><code class="language-php">'transformer' =&gt; function($data) {
-    try {
-        return new MyEvent($data);
-    } catch (Exception $e) {
-        // Log error, return null to skip event
-        return null;
-    }
-}
-</code></pre>
-<ol start="4">
-<li><strong>Document Platform Events</strong>: Always document which platform events you're binding to and what data they provide:</li>
-</ol>
-<pre><code class="language-php">// Binds to 'save_post' WordPress action
-// @param int $post_id The ID of the saved post
-// @param WP_Post $post The post object
-// @param bool $update Whether this is an update
-</code></pre>
-<h2 id="real-world-example-reports-system">Real-World Example: Reports System</h2>
-<p>Here's a complete example showing how to bind a reports system to WordPress:</p>
-<pre><code class="language-php">class WordPressReportingIntegration implements HasEventBindings 
-{
-    private ReportTransformer $transformer;
-    
-    public function __construct(ReportTransformer $transformer) 
-    {
-        $this-&gt;transformer = $transformer;
-    }
-    
-    public function getEventBindings(): array 
-    {
-        return [
-            // Handle new reports
-            ReportCreated::class =&gt; [
-                [
-                    'action' =&gt; 'save_post',
-                    'transformer' =&gt; function($postId, $post, $update) {
-                        // Only handle new reports
-                        if ($update || $post-&gt;post_type !== 'report') {
-                            return null;
-                        }
-                        
-                        return $this-&gt;transformer-&gt;toReportCreated($post);
-                    }
-                ]
-            ],
-            
-            // Handle report updates
-            ReportUpdated::class =&gt; [
-                [
-                    'action' =&gt; 'save_post',
-                    'transformer' =&gt; function($postId, $post, $update) {
-                        // Only handle report updates
-                        if (!$update || $post-&gt;post_type !== 'report') {
-                            return null;
-                        }
-                        
-                        return $this-&gt;transformer-&gt;toReportUpdated($post);
-                    }
-                ]
-            ]
-        ];
-    }
-}
-</code></pre>
-<p>The beauty of this approach is that your internal application logic doesn't need to know about how events are emitted,
-it just needs to listen for the nomadic events and it can do the actions from there. So if you needed to send an email
-when a report is created, you could create an <a href="event-listeners.md">event listener</a> in your a platform-agnostic
-initializer that would fire when the report is published.</p>
-<p>In doing so, you've completely decoupled the platform from your application - as long as the platform knows how to emit
-the right events, and can translate them appropriately, it's compatible with your system.</p>
-<p>Notice that the code below does not call any WordPress code whatsoever, and yet because of our event binding, we know
-it will run when the report post is published. If we put this on a different platform, it's just a matter of sending
-the <code>ReportCreated</code> event at the right time, and this would just work.</p>
-<pre><code class="language-php">class SendReportToCustomer implements CanHandle
-{
-    public function __construct(protected EmailStrategy $emailer){}
-    
-    public function handle(Event $event): void
-    {
-        $this-&gt;emailer-&gt;send(/** Include email details here. */)
-    }
-}
+<p>The container will construct these controllers (resolving dependencies), and the runtime will register their routes from
+the controller contracts.</p>
+<h2 id="minimal-controller">Minimal Controller</h2>
+<p>This is a very basic example of a controller, and does not include middleware or validations. In your production
+controllers, you’ll often also implement <code>HasMiddleware</code> / <code>HasValidations</code>. See real-world examples
+where <code>getEndpoint()</code>, <code>getMethod()</code>, and <code>getValidations()</code> are used together.</p>
+<p>See the <a href="./rest/rest.md">Rest</a> package documentation for fuller examples.</p>
+<pre><code class="language-php">&lt;?php
 
-class ApplicationInitializer implements HasListeners
+use PHPNomad\Http\Interfaces\Request;
+use PHPNomad\Http\Interfaces\Response;
+use PHPNomad\Rest\Interfaces\Controller;
+
+final class HelloController implements Controller
 {
-    public function getListeners(): void
+    public function __construct(private Response $response) {}
+
+    public function getEndpoint(): string
+    {
+        return '/hello';
+    }
+
+    public function getMethod(): string
+    {
+        return 'GET';
+    }
+
+    public function getResponse(Request $request): Response
+    {
+        return $this-&gt;response
+            -&gt;setStatus(200)
+            -&gt;setJson(['message' =&gt; 'Hello from PHPNomad REST']);
+    }
+}
+</code></pre>
+<h2 id="registering-controllers-via-an-initializer">Registering Controllers via an Initializer</h2>
+<p>Your initializer simply <strong>implements <code>HasControllers</code></strong> and returns the controllers to load.
+The container instantiates them; the runtime reads <code>getEndpoint()</code> / <code>getMethod()</code> to wire routes.</p>
+<pre><code class="language-php">&lt;?php
+// initializers/RestControllersInitializer.php
+
+use PHPNomad\Loader\Interfaces\Initializer;
+// use Your\Project\Interfaces\HasControllers;  // ← import the HasControllers interface from your project
+// (Namespace may vary by codebase; keep it consistent with your other initializers.)
+
+final class RestControllersInitializer implements Initializer, HasControllers
+{
+    /**
+     * Return the list of Controllers to be mounted.
+     * You can return class-strings for DI instantiation, or instances if you prefer.
+     *
+     * @return array&lt;class-string&lt;Controller&gt;|Controller&gt;
+     */
+    public function getControllers(): array
     {
         return [
-            ReportCreated::class =&gt; SendReportToCustomer::class
+            HelloController::class,
+            // CreateWidget::class,
+            // GetWidget::class,
+            // ListWidgets::class,
         ];
     }
 }
 </code></pre>
-<h2 id="summary">Summary</h2>
-<p>Event bindings are a powerful way to keep your application's core logic clean while still integrating smoothly with any
-platform. They act as a bridge between your application and the platform, translating events back and forth without
-cluttering your main code with platform-specific details.</p>
-<p>Remember:</p>
-<ul>
-<li>Keep transformers simple and focused</li>
-<li>Handle errors gracefully</li>
-<li>Document platform events clearly</li>
-<li>Use service classes for complex transformations</li>
-</ul>
-<p>With event bindings, your application can easily &quot;speak&quot; to any platform while keeping its own code clean and portable.</p>
 
     </main>
 </div>

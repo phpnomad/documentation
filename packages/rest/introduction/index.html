@@ -18,12 +18,12 @@
                     <a href="/"><img src="/public/assets/logo.png" alt="PHPNomad Logo"/></a>
             <nav>
     
-                                        <details class="nav-section" open>
+                                        <details class="nav-section" >
                     <summary>
                                                     Core concepts
                                             </summary>
                     <div class="nav-group">
-                                                            <details class="nav-section" open>
+                                                            <details class="nav-section" >
                     <summary>
                                                     Bootstrapping
                                             </summary>
@@ -38,7 +38,7 @@
                         Creating and managing initializers
                     </a>
                 </div>
-                                                <details class="nav-section" open>
+                                                <details class="nav-section" >
                     <summary>
                                                     Initializers
                                             </summary>
@@ -82,12 +82,12 @@
                         
                     </div>
                 </details>
-                                                <details class="nav-section" >
+                                                <details class="nav-section" open>
                     <summary>
                                                     Packages
                                             </summary>
                     <div class="nav-group">
-                                                            <details class="nav-section" >
+                                                            <details class="nav-section" open>
                     <summary>
                                                     Rest
                                             </summary>
@@ -275,208 +275,71 @@
                         
 </nav>            </aside>
     <main class="docs-content">
-            <h1 id="event-bindings">Event Bindings</h1>
-<h2 id="what-are-event-bindings">What are Event Bindings?</h2>
-<p>Event bindings are like adapters that connect your application's events to a platform's native event system. Think of
-them as translators that help your code communicate with different platforms (like WordPress, Laravel, or your own
-custom system) without needing to know their specific &quot;language&quot;.</p>
-<h2 id="why-use-event-bindings">Why Use Event Bindings?</h2>
-<p>The beauty of event bindings is that they keep your core application code clean and portable. Instead of embedding
-platform-specific code throughout your application, you create a single place where your system's events connect to the
-platform.</p>
-<p>For example, let's say you have an e-commerce application and want to track when someone uses a coupon code. Rather than
-spreading WordPress-specific code everywhere, you can use event bindings to cleanly connect WordPress's coupon events to
-your system.</p>
-<h2 id="how-event-bindings-work">How Event Bindings Work</h2>
-<p>Event bindings consist of three main parts:</p>
-<ol>
-<li>Your application's event (like <code>CouponApplied</code> or <code>ReportCreated</code>)</li>
-<li>The platform's action or event to listen for</li>
-<li>A transformer that converts the platform's data into your application's event</li>
-</ol>
-<p>Here's a basic example:</p>
-<pre><code class="language-php">class WooCommerceIntegration implements HasEventBindings 
-{
-    public function getEventBindings(): array 
-    {
-        return [
-            // Your event =&gt; Platform event configuration
-            CouponApplied::class =&gt; [
-                [
-                    'action' =&gt; 'woocommerce_applied_coupon',
-                    'transformer' =&gt; function($couponCode) {
-                        return new CouponApplied($couponCode);
-                    }
-                ]
-            ]
-        ];
-    }
-}
-</code></pre>
-<p>In this example:</p>
+            <h1 id="rest">Rest</h1>
+<p><code>phpnomad/rest</code> is an <strong>MVC-driven methodology for defining REST APIs</strong>.
+It’s designed to let you describe <strong>controllers, routes, validations, and policies</strong> in a way that’s <strong>agnostic to the
+framework or runtime</strong> you plug into.</p>
+<p>At its core:</p>
 <ul>
-<li><code>CouponApplied</code> is your application's event</li>
-<li><code>woocommerce_applied_coupon</code> is WooCommerce's action</li>
-<li>The transformer function converts WooCommerce's coupon code into your <code>CouponApplied</code> event</li>
+<li><strong>Controllers</strong> express your business logic in a consistent contract.</li>
+<li><strong>RestStrategies</strong> adapt those controllers to different environments (FastRoute, WordPress, custom).</li>
+<li><strong>Middleware</strong> and <strong>Validations</strong> give you predictable, portable contracts around input handling and authorization.</li>
+<li><strong>Interceptors</strong> capture side effects like events or logs after responses are sent.</li>
 </ul>
-<h2 id="advanced-usage-multiple-bindings">Advanced Usage: Multiple Bindings</h2>
-<p>Sometimes you might want to listen for the same event from different sources. You can do this by returning an array of
-bindings:</p>
-<pre><code class="language-php">public function getEventBindings(): array 
-{
-    return [
-        OrderCreated::class =&gt; [
-            // Listen for WooCommerce orders
-            [
-                'action' =&gt; 'woocommerce_order_status_completed',
-                'transformer' =&gt; [$this-&gt;wooCommerceTransformer, 'toOrderCreated']
-            ],
-            // Also listen for Easy Digital Downloads orders
-            [
-                'action' =&gt; 'edd_complete_purchase',
-                'transformer' =&gt; [$this-&gt;eddTransformer, 'toOrderCreated']
-            ]
-        ]
-    ];
-}
-</code></pre>
-<h2 id="working-with-transformers">Working with Transformers</h2>
-<p>Transformers are functions that:</p>
-<ol>
-<li>Receive data from the platform's event</li>
-<li>Convert that data into your application's format</li>
-<li>Return either your event object or null</li>
-</ol>
-<p>If a transformer returns null, no event is triggered. This is useful for conditional events:</p>
-<pre><code class="language-php">'transformer' =&gt; function($post_id, $post) {
-    // Only create event for published posts
-    if ($post-&gt;post_status !== 'publish') {
-        return null;
-    }
-    
-    return new PostPublished($post_id);
-}
-</code></pre>
-<h2 id="best-practices">Best Practices</h2>
-<ol>
-<li>
-<p><strong>Keep Transformers Clean</strong>: Transformers should focus only on converting data. Heavy processing should happen
-elsewhere.</p>
-</li>
-<li>
-<p><strong>Use Service Classes</strong>: For complex transformations, create dedicated service classes instead of inline functions:</p>
-</li>
-</ol>
-<pre><code class="language-php">'transformer' =&gt; [$this-&gt;postTransformerService, 'toPostEvent']
-</code></pre>
-<ol start="3">
-<li><strong>Handle Errors Gracefully</strong>: Transformers should handle missing or invalid data without crashing:</li>
-</ol>
-<pre><code class="language-php">'transformer' =&gt; function($data) {
-    try {
-        return new MyEvent($data);
-    } catch (Exception $e) {
-        // Log error, return null to skip event
-        return null;
-    }
-}
-</code></pre>
-<ol start="4">
-<li><strong>Document Platform Events</strong>: Always document which platform events you're binding to and what data they provide:</li>
-</ol>
-<pre><code class="language-php">// Binds to 'save_post' WordPress action
-// @param int $post_id The ID of the saved post
-// @param WP_Post $post The post object
-// @param bool $update Whether this is an update
-</code></pre>
-<h2 id="real-world-example-reports-system">Real-World Example: Reports System</h2>
-<p>Here's a complete example showing how to bind a reports system to WordPress:</p>
-<pre><code class="language-php">class WordPressReportingIntegration implements HasEventBindings 
-{
-    private ReportTransformer $transformer;
-    
-    public function __construct(ReportTransformer $transformer) 
-    {
-        $this-&gt;transformer = $transformer;
-    }
-    
-    public function getEventBindings(): array 
-    {
-        return [
-            // Handle new reports
-            ReportCreated::class =&gt; [
-                [
-                    'action' =&gt; 'save_post',
-                    'transformer' =&gt; function($postId, $post, $update) {
-                        // Only handle new reports
-                        if ($update || $post-&gt;post_type !== 'report') {
-                            return null;
-                        }
-                        
-                        return $this-&gt;transformer-&gt;toReportCreated($post);
-                    }
-                ]
-            ],
-            
-            // Handle report updates
-            ReportUpdated::class =&gt; [
-                [
-                    'action' =&gt; 'save_post',
-                    'transformer' =&gt; function($postId, $post, $update) {
-                        // Only handle report updates
-                        if (!$update || $post-&gt;post_type !== 'report') {
-                            return null;
-                        }
-                        
-                        return $this-&gt;transformer-&gt;toReportUpdated($post);
-                    }
-                ]
-            ]
-        ];
-    }
-}
-</code></pre>
-<p>The beauty of this approach is that your internal application logic doesn't need to know about how events are emitted,
-it just needs to listen for the nomadic events and it can do the actions from there. So if you needed to send an email
-when a report is created, you could create an <a href="event-listeners.md">event listener</a> in your a platform-agnostic
-initializer that would fire when the report is published.</p>
-<p>In doing so, you've completely decoupled the platform from your application - as long as the platform knows how to emit
-the right events, and can translate them appropriately, it's compatible with your system.</p>
-<p>Notice that the code below does not call any WordPress code whatsoever, and yet because of our event binding, we know
-it will run when the report post is published. If we put this on a different platform, it's just a matter of sending
-the <code>ReportCreated</code> event at the right time, and this would just work.</p>
-<pre><code class="language-php">class SendReportToCustomer implements CanHandle
-{
-    public function __construct(protected EmailStrategy $emailer){}
-    
-    public function handle(Event $event): void
-    {
-        $this-&gt;emailer-&gt;send(/** Include email details here. */)
-    }
-}
-
-class ApplicationInitializer implements HasListeners
-{
-    public function getListeners(): void
-    {
-        return [
-            ReportCreated::class =&gt; SendReportToCustomer::class
-        ];
-    }
-}
-</code></pre>
-<h2 id="summary">Summary</h2>
-<p>Event bindings are a powerful way to keep your application's core logic clean while still integrating smoothly with any
-platform. They act as a bridge between your application and the platform, translating events back and forth without
-cluttering your main code with platform-specific details.</p>
-<p>Remember:</p>
+<p>By separating API <strong>definition</strong> (what the endpoint is, what it requires, what it returns) from <strong>integration</strong> (how it
+runs inside a host), you get REST endpoints that can move between stacks without rewrites.</p>
+<h2 id="key-ideas-at-a-glance">Key ideas at a glance</h2>
 <ul>
-<li>Keep transformers simple and focused</li>
-<li>Handle errors gracefully</li>
-<li>Document platform events clearly</li>
-<li>Use service classes for complex transformations</li>
+<li><strong>Controller</strong> — your endpoint’s logic, returning the payload + status intent.</li>
+<li><strong>RestStrategy</strong> — wires routes to controllers in your host framework.</li>
+<li><strong>Middleware</strong> — pre-controller cross-cuts (auth, pagination defaults, projections).</li>
+<li><strong>Validations</strong> — input contracts with a consistent error shape.</li>
+<li><strong>Interceptors</strong> — post-response side effects (events, logs, metrics).</li>
 </ul>
-<p>With event bindings, your application can easily &quot;speak&quot; to any platform while keeping its own code clean and portable.</p>
+<hr />
+<h2 id="the-request-lifecycle">The Request Lifecycle</h2>
+<p>When a request enters a system wired with <code>phpnomad/rest</code>, it moves through a consistent sequence of steps:</p>
+<pre><code>Route → Middleware → Controller → Response → Interceptors
+</code></pre>
+<h3 id="route">Route</h3>
+<p>The <strong>RestStrategy</strong> matches an incoming request to a registered controller based on the HTTP method and path.</p>
+<ul>
+<li>Integration-specific (FastRoute, WordPress, custom).</li>
+<li>Responsible only for dispatching into the portable REST flow.</li>
+</ul>
+<h3 id="middleware">Middleware</h3>
+<p><a href="./middleware/introduction">Middleware</a> runs <strong>before</strong> your controller logic.</p>
+<ul>
+<li>Can short-circuit (e.g., fail auth, block a bad request).</li>
+<li>Can enrich context (e.g., inject a current user, parse query filters).</li>
+<li>Runs in defined order, producing a clean setup for the controller.</li>
+</ul>
+<h3 id="validations">Validations</h3>
+<p><a href="./validations/introduction">Validation</a> sets define <strong>input contracts</strong> for the request. These are set using a
+middleware, so you can control when
+they run.</p>
+<ul>
+<li>Ensure required fields are present.</li>
+<li>Enforce types and formats (e.g., integer IDs, valid emails).</li>
+<li>Failures are collected and returned in a predictable error payload.</li>
+</ul>
+<h3 id="controller-handle-method">Controller Handle Method</h3>
+<p>The <a href="./controllers">controller</a> is the <strong>core of the endpoint</strong>.</p>
+<ul>
+<li>Business logic goes here: read, mutate, return.</li>
+<li>Sees a request context already shaped by middleware and validated inputs.</li>
+<li>Returns a response object, setting the status and payload.</li>
+</ul>
+<h3 id="interceptors">Interceptors</h3>
+<p><a href="./interceptors/introduction">Interceptors</a> run <strong>after the controller has produced a response</strong> and <strong>before the
+response leaves the pipeline</strong>.</p>
+<p>They're usually used for two main purposes:</p>
+<ol>
+<li><strong>Adapt the response</strong> — reshape or enrich the response object without touching controller code.</li>
+<li><strong>Perform side effects</strong> — emit events, write audit logs, push metrics, etc.</li>
+</ol>
+<p>Because interceptors sit at the boundary, they’re an ideal place to keep controllers lean while still achieving
+consistent output formats and cross-cutting behavior.</p>
 
     </main>
 </div>
