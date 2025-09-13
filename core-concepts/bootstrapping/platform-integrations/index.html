@@ -38,6 +38,16 @@
                         Creating and managing initializers
                     </a>
                 </div>
+                                                <div class="nav-item">
+                    <a href="/core-concepts/bootstrapping/introduction" class="">
+                        Introduction
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/core-concepts/bootstrapping/platform-integrations" class="">
+                        Platform integrations
+                    </a>
+                </div>
                                                 <details class="nav-section" >
                     <summary>
                                                     Initializers
@@ -66,16 +76,6 @@
                         
                     </div>
                 </details>
-                                                <div class="nav-item">
-                    <a href="/core-concepts/bootstrapping/introduction" class="">
-                        Introduction
-                    </a>
-                </div>
-                                                <div class="nav-item">
-                    <a href="/core-concepts/bootstrapping/platform-integrations" class="">
-                        Platform integrations
-                    </a>
-                </div>
                         
                     </div>
                 </details>
@@ -102,12 +102,22 @@
                         Integration guide
                     </a>
                 </div>
+                                                <div class="nav-item">
+                    <a href="/packages/rest/introduction" class="">
+                        Introduction
+                    </a>
+                </div>
                                                 <details class="nav-section" >
                     <summary>
                                                     Interceptors
                                             </summary>
                     <div class="nav-group">
-                                                            <details class="nav-section" >
+                                                            <div class="nav-item">
+                    <a href="/packages/rest/interceptors/introduction" class="">
+                        Introduction
+                    </a>
+                </div>
+                                                <details class="nav-section" >
                     <summary>
                                                     Included interceptors
                                             </summary>
@@ -120,25 +130,20 @@
                         
                     </div>
                 </details>
-                                                <div class="nav-item">
-                    <a href="/packages/rest/interceptors/introduction" class="">
-                        Introduction
-                    </a>
-                </div>
                         
                     </div>
                 </details>
-                                                <div class="nav-item">
-                    <a href="/packages/rest/introduction" class="">
-                        Introduction
-                    </a>
-                </div>
                                                 <details class="nav-section" >
                     <summary>
                                                     Middleware
                                             </summary>
                     <div class="nav-group">
-                                                            <details class="nav-section" >
+                                                            <div class="nav-item">
+                    <a href="/packages/rest/middleware/introduction" class="">
+                        Introduction
+                    </a>
+                </div>
+                                                <details class="nav-section" >
                     <summary>
                                                     Included middleware
                                             </summary>
@@ -166,11 +171,6 @@
                         
                     </div>
                 </details>
-                                                <div class="nav-item">
-                    <a href="/packages/rest/middleware/introduction" class="">
-                        Introduction
-                    </a>
-                </div>
                         
                     </div>
                 </details>
@@ -179,7 +179,17 @@
                                                     Validations
                                             </summary>
                     <div class="nav-group">
-                                                            <details class="nav-section" >
+                                                            <div class="nav-item">
+                    <a href="/packages/rest/validations/introduction" class="">
+                        Introduction
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/packages/rest/validations/validation-set" class="">
+                        Validation set
+                    </a>
+                </div>
+                                                <details class="nav-section" >
                     <summary>
                                                     Included validations
                                             </summary>
@@ -217,16 +227,6 @@
                         
                     </div>
                 </details>
-                                                <div class="nav-item">
-                    <a href="/packages/rest/validations/introduction" class="">
-                        Introduction
-                    </a>
-                </div>
-                                                <div class="nav-item">
-                    <a href="/packages/rest/validations/validation-set" class="">
-                        Validation set
-                    </a>
-                </div>
                         
                     </div>
                 </details>
@@ -381,7 +381,7 @@ instance, a shared initializer should never directly reference platform-specific
 these concerns separate ensures that shared initializers remain reusable across different contexts.</p>
 <p>If you’re debugging a platform-specific initializer, make sure the problem isn’t due to the platform’s lifecycle or API.
 For example, in WordPress, actions and filters may need to be registered at a specific point during initialization.</p>
-<p>For more information on this, check out <a href="./core-concepts/bootstrapping/initializers/event-binding.md">Event Bindings</a></p>
+<p>For more information on this, check out <a href="/core-concepts/bootstrapping/initializers/event-binding">Event Bindings</a></p>
 <h2 id="expanding-integrations">Expanding Integrations</h2>
 <p>PHPNomad encourages you to think modularly when creating platform-specific initializers. By keeping your logic
 well-organized, you’ll make it easy to reuse these initializers across projects. For example, if you’ve written a

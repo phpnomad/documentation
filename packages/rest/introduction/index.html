@@ -38,6 +38,16 @@
                         Creating and managing initializers
                     </a>
                 </div>
+                                                <div class="nav-item">
+                    <a href="/core-concepts/bootstrapping/introduction" class="">
+                        Introduction
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/core-concepts/bootstrapping/platform-integrations" class="">
+                        Platform integrations
+                    </a>
+                </div>
                                                 <details class="nav-section" >
                     <summary>
                                                     Initializers
@@ -66,16 +76,6 @@
                         
                     </div>
                 </details>
-                                                <div class="nav-item">
-                    <a href="/core-concepts/bootstrapping/introduction" class="">
-                        Introduction
-                    </a>
-                </div>
-                                                <div class="nav-item">
-                    <a href="/core-concepts/bootstrapping/platform-integrations" class="">
-                        Platform integrations
-                    </a>
-                </div>
                         
                     </div>
                 </details>
@@ -102,12 +102,22 @@
                         Integration guide
                     </a>
                 </div>
+                                                <div class="nav-item">
+                    <a href="/packages/rest/introduction" class="">
+                        Introduction
+                    </a>
+                </div>
                                                 <details class="nav-section" >
                     <summary>
                                                     Interceptors
                                             </summary>
                     <div class="nav-group">
-                                                            <details class="nav-section" >
+                                                            <div class="nav-item">
+                    <a href="/packages/rest/interceptors/introduction" class="">
+                        Introduction
+                    </a>
+                </div>
+                                                <details class="nav-section" >
                     <summary>
                                                     Included interceptors
                                             </summary>
@@ -120,25 +130,20 @@
                         
                     </div>
                 </details>
-                                                <div class="nav-item">
-                    <a href="/packages/rest/interceptors/introduction" class="">
-                        Introduction
-                    </a>
-                </div>
                         
                     </div>
                 </details>
-                                                <div class="nav-item">
-                    <a href="/packages/rest/introduction" class="">
-                        Introduction
-                    </a>
-                </div>
                                                 <details class="nav-section" >
                     <summary>
                                                     Middleware
                                             </summary>
                     <div class="nav-group">
-                                                            <details class="nav-section" >
+                                                            <div class="nav-item">
+                    <a href="/packages/rest/middleware/introduction" class="">
+                        Introduction
+                    </a>
+                </div>
+                                                <details class="nav-section" >
                     <summary>
                                                     Included middleware
                                             </summary>
@@ -166,11 +171,6 @@
                         
                     </div>
                 </details>
-                                                <div class="nav-item">
-                    <a href="/packages/rest/middleware/introduction" class="">
-                        Introduction
-                    </a>
-                </div>
                         
                     </div>
                 </details>
@@ -179,7 +179,17 @@
                                                     Validations
                                             </summary>
                     <div class="nav-group">
-                                                            <details class="nav-section" >
+                                                            <div class="nav-item">
+                    <a href="/packages/rest/validations/introduction" class="">
+                        Introduction
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/packages/rest/validations/validation-set" class="">
+                        Validation set
+                    </a>
+                </div>
+                                                <details class="nav-section" >
                     <summary>
                                                     Included validations
                                             </summary>
@@ -217,16 +227,6 @@
                         
                     </div>
                 </details>
-                                                <div class="nav-item">
-                    <a href="/packages/rest/validations/introduction" class="">
-                        Introduction
-                    </a>
-                </div>
-                                                <div class="nav-item">
-                    <a href="/packages/rest/validations/validation-set" class="">
-                        Validation set
-                    </a>
-                </div>
                         
                     </div>
                 </details>
@@ -308,14 +308,14 @@ runs inside a host), you get REST endpoints that can move between stacks without
 <li>Responsible only for dispatching into the portable REST flow.</li>
 </ul>
 <h3 id="middleware">Middleware</h3>
-<p><a href="./middleware/introduction">Middleware</a> runs <strong>before</strong> your controller logic.</p>
+<p><a href="/packages/rest/middleware/introduction">Middleware</a> runs <strong>before</strong> your controller logic.</p>
 <ul>
 <li>Can short-circuit (e.g., fail auth, block a bad request).</li>
 <li>Can enrich context (e.g., inject a current user, parse query filters).</li>
 <li>Runs in defined order, producing a clean setup for the controller.</li>
 </ul>
 <h3 id="validations">Validations</h3>
-<p><a href="./validations/introduction">Validation</a> sets define <strong>input contracts</strong> for the request. These are set using a
+<p><a href="/packages/rest/validations/introduction">Validation</a> sets define <strong>input contracts</strong> for the request. These are set using a
 middleware, so you can control when
 they run.</p>
 <ul>
@@ -324,14 +324,14 @@ they run.</p>
 <li>Failures are collected and returned in a predictable error payload.</li>
 </ul>
 <h3 id="controller-handle-method">Controller Handle Method</h3>
-<p>The <a href="./controllers">controller</a> is the <strong>core of the endpoint</strong>.</p>
+<p>The <a href="/packages/rest/controllers">controller</a> is the <strong>core of the endpoint</strong>.</p>
 <ul>
 <li>Business logic goes here: read, mutate, return.</li>
 <li>Sees a request context already shaped by middleware and validated inputs.</li>
 <li>Returns a response object, setting the status and payload.</li>
 </ul>
 <h3 id="interceptors">Interceptors</h3>
-<p><a href="./interceptors/introduction">Interceptors</a> run <strong>after the controller has produced a response</strong> and <strong>before the
+<p><a href="/packages/rest/interceptors/introduction">Interceptors</a> run <strong>after the controller has produced a response</strong> and <strong>before the
 response leaves the pipeline</strong>.</p>
 <p>They're usually used for two main purposes:</p>
 <ol>

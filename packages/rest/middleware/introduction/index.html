@@ -38,6 +38,16 @@
                         Creating and managing initializers
                     </a>
                 </div>
+                                                <div class="nav-item">
+                    <a href="/core-concepts/bootstrapping/introduction" class="">
+                        Introduction
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/core-concepts/bootstrapping/platform-integrations" class="">
+                        Platform integrations
+                    </a>
+                </div>
                                                 <details class="nav-section" >
                     <summary>
                                                     Initializers
@@ -66,16 +76,6 @@
                         
                     </div>
                 </details>
-                                                <div class="nav-item">
-                    <a href="/core-concepts/bootstrapping/introduction" class="">
-                        Introduction
-                    </a>
-                </div>
-                                                <div class="nav-item">
-                    <a href="/core-concepts/bootstrapping/platform-integrations" class="">
-                        Platform integrations
-                    </a>
-                </div>
                         
                     </div>
                 </details>
@@ -102,12 +102,22 @@
                         Integration guide
                     </a>
                 </div>
+                                                <div class="nav-item">
+                    <a href="/packages/rest/introduction" class="">
+                        Introduction
+                    </a>
+                </div>
                                                 <details class="nav-section" >
                     <summary>
                                                     Interceptors
                                             </summary>
                     <div class="nav-group">
-                                                            <details class="nav-section" >
+                                                            <div class="nav-item">
+                    <a href="/packages/rest/interceptors/introduction" class="">
+                        Introduction
+                    </a>
+                </div>
+                                                <details class="nav-section" >
                     <summary>
                                                     Included interceptors
                                             </summary>
@@ -120,25 +130,20 @@
                         
                     </div>
                 </details>
-                                                <div class="nav-item">
-                    <a href="/packages/rest/interceptors/introduction" class="">
-                        Introduction
-                    </a>
-                </div>
                         
                     </div>
                 </details>
-                                                <div class="nav-item">
-                    <a href="/packages/rest/introduction" class="">
-                        Introduction
-                    </a>
-                </div>
                                                 <details class="nav-section" open>
                     <summary>
                                                     Middleware
                                             </summary>
                     <div class="nav-group">
-                                                            <details class="nav-section" >
+                                                            <div class="nav-item">
+                    <a href="/packages/rest/middleware/introduction" class="">
+                        Introduction
+                    </a>
+                </div>
+                                                <details class="nav-section" >
                     <summary>
                                                     Included middleware
                                             </summary>
@@ -166,11 +171,6 @@
                         
                     </div>
                 </details>
-                                                <div class="nav-item">
-                    <a href="/packages/rest/middleware/introduction" class="">
-                        Introduction
-                    </a>
-                </div>
                         
                     </div>
                 </details>
@@ -179,7 +179,17 @@
                                                     Validations
                                             </summary>
                     <div class="nav-group">
-                                                            <details class="nav-section" >
+                                                            <div class="nav-item">
+                    <a href="/packages/rest/validations/introduction" class="">
+                        Introduction
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/packages/rest/validations/validation-set" class="">
+                        Validation set
+                    </a>
+                </div>
+                                                <details class="nav-section" >
                     <summary>
                                                     Included validations
                                             </summary>
@@ -217,16 +227,6 @@
                         
                     </div>
                 </details>
-                                                <div class="nav-item">
-                    <a href="/packages/rest/validations/introduction" class="">
-                        Introduction
-                    </a>
-                </div>
-                                                <div class="nav-item">
-                    <a href="/packages/rest/validations/validation-set" class="">
-                        Validation set
-                    </a>
-                </div>
                         
                     </div>
                 </details>
@@ -299,9 +299,9 @@ code, message, and structured context—the integration will catch it and format
 <h2 id="what-middleware-is-not">What middleware is not</h2>
 <ol>
 <li>It is not where you perform post-response side effects, such as triggering events. That's the job
-of <a href="../interceptors/introduction">interceptors</a></li>
+of <a href="/packages/rest/middleware/interceptors/introduction">interceptors</a></li>
 <li>It is not where you encode your domain’s validation rules. That's the job
-of <a href="../validations/introduction">validations</a>.</li>
+of <a href="/packages/rest/middleware/validations/introduction">validations</a>.</li>
 <li>It is not where you write business logic. That's the job of the controller.</li>
 </ol>
 <h2 id="the-middleware-contract">The middleware contract</h2>
@@ -414,7 +414,7 @@ final class GetRecordFromRequest implements Middleware
 <p>The example below shows a <code>GetUser</code> controller that uses the <code>GetRecordFromRequest</code> middleware to fetch a user by ID.
 This uses the GetRecordFromRequest middleware defined above.</p>
 <p>Note that before it passes the request to the middleware, it also
-uses <a href="./included-middleware/set-type-middleware">SetTypeMiddleware</a> to ensure the <code>id</code> parameter is always an integer.</p>
+uses <a href="/packages/rest/middleware/included-middleware/set-type-middleware">SetTypeMiddleware</a> to ensure the <code>id</code> parameter is always an integer.</p>
 <pre><code class="language-php">/**
  * Example controller showing how to get a user
  * - Middleware
