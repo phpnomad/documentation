@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <link rel="stylesheet" href="/public/assets/pico.min.css">
+    <link rel="stylesheet" href="/public/assets/prism.css">
+    <link rel="stylesheet" href="/public/assets/style.css">
+    <script src="/public/assets/prism.js"></script>
+</head>
+<body>
+<header>
+    <nav>
+    <a href="https://www.github.com/phpnomad">GitHub</a>
+</nav></header>
+
+<div class="docs-layout">
+    <aside class="docs-sidebar">
+                    <a href="/"><img src="/public/assets/logo.png" alt="PHPNomad Logo"/></a>
+            <nav>
+    
+                                        <details class="nav-section" >
+                    <summary>
+                                                    Core concepts
+                                            </summary>
+                    <div class="nav-group">
+                                                            <details class="nav-section" >
+                    <summary>
+                                                    Bootstrapping
+                                            </summary>
+                    <div class="nav-group">
+                                                            <div class="nav-item">
+                    <a href="/core-concepts/bootstrapping/advanced-bootstrapping" class="">
+                        Advanced bootstrapping
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/core-concepts/bootstrapping/creating-and-managing-initializers" class="">
+                        Creating and managing initializers
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/core-concepts/bootstrapping/introduction" class="">
+                        Introduction
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/core-concepts/bootstrapping/platform-integrations" class="">
+                        Platform integrations
+                    </a>
+                </div>
+                                                <details class="nav-section" >
+                    <summary>
+                                                    Initializers
+                                            </summary>
+                    <div class="nav-group">
+                                                            <div class="nav-item">
+                    <a href="/core-concepts/bootstrapping/initializers/event-binding" class="">
+                        Event binding
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/core-concepts/bootstrapping/initializers/event-listeners" class="">
+                        Event listeners
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/core-concepts/bootstrapping/initializers/facades" class="">
+                        Facades
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/core-concepts/bootstrapping/initializers/rest-controllers" class="">
+                        Rest controllers
+                    </a>
+                </div>
+                        
+                    </div>
+                </details>
+                        
+                    </div>
+                </details>
+                                                <details class="nav-section" >
+                    <summary>
+                                                    Datastores
+                                            </summary>
+                    <div class="nav-group">
+                                                            <div class="nav-item">
+                    <a href="/core-concepts/datastores/getting-started-tutorial" class="">
+                        Getting started tutorial
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/core-concepts/datastores/introduction" class="">
+                        Introduction
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/core-concepts/datastores/models-and-identity" class="">
+                        Models and identity
+                    </a>
+                </div>
+                        
+                    </div>
+                </details>
+                        
+                    </div>
+                </details>
+                                                <details class="nav-section" open>
+                    <summary>
+                                                    Packages
+                                            </summary>
+                    <div class="nav-group">
+                                                            <details class="nav-section" open>
+                    <summary>
+                                                    Database
+                                            </summary>
+                    <div class="nav-group">
+                                                            <div class="nav-item">
+                    <a href="/packages/database/caching-and-events" class="">
+                        Caching and events
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/packages/database/database-service-provider" class="">
+                        Database service provider
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/packages/database/introduction" class="">
+                        Introduction
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/packages/database/junction-tables" class="">
+                        Junction tables
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/packages/database/query-building" class="">
+                        Query building
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/packages/database/table-schema-definition" class="">
+                        Table schema definition
+                    </a>
+                </div>
+                                                <details class="nav-section" >
+                    <summary>
+                                                    Handlers
+                                            </summary>
+                    <div class="nav-group">
+                                                            <div class="nav-item">
+                    <a href="/packages/database/handlers/identifiable-database-datastore-handler" class="">
+                        Identifiable database datastore handler
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/packages/database/handlers/introduction" class="">
+                        Introduction
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/packages/database/handlers/with-datastore-handler-methods" class="">
+                        With datastore handler methods
+                    </a>
+                </div>
+                        
+                    </div>
+                </details>
+                                                <details class="nav-section" >
+                    <summary>
+                                                    Included factories
+                                            </summary>
+                    <div class="nav-group">
+                                                            <div class="nav-item">
+                    <a href="/packages/database/included-factories/date-created-factory" class="">
+                        Date created factory
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/packages/database/included-factories/date-modified-factory" class="">
+                        Date modified factory
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/packages/database/included-factories/foreign-key-factory" class="">
+                        Foreign key factory
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/packages/database/included-factories/introduction" class="">
+                        Introduction
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/packages/database/included-factories/primary-key-factory" class="">
+                        Primary key factory
+                    </a>
+                </div>
+                        
+                    </div>
+                </details>
+                                                <details class="nav-section" >
+                    <summary>
+                                                    Tables
+                                            </summary>
+                    <div class="nav-group">
+                                                            <div class="nav-item">
+                    <a href="/packages/database/tables/introduction" class="">
+                        Introduction
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/packages/database/tables/junction-table-class" class="">
+                        Junction table class
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/packages/database/tables/table-class" class="">
+                        Table class
+                    </a>
+                </div>
+                        
+                    </div>
+                </details>
+                        
+                    </div>
+                </details>
+                                                <details class="nav-section" >
+                    <summary>
+                                                    Datastore
+                                            </summary>
+                    <div class="nav-group">
+                                                            <div class="nav-item">
+                    <a href="/packages/datastore/core-implementation" class="">
+                        Core implementation
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/packages/datastore/integration-guide" class="">
+                        Integration guide
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/packages/datastore/introduction" class="">
+                        Introduction
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/packages/datastore/model-adapters" class="">
+                        Model adapters
+                    </a>
+                </div>
+                                                <details class="nav-section" >
+                    <summary>
+                                                    Interfaces
+                                            </summary>
+                    <div class="nav-group">
+                                                            <div class="nav-item">
+                    <a href="/packages/datastore/interfaces/datastore" class="">
+                        Datastore
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/packages/datastore/interfaces/datastore-has-counts" class="">
+                        Datastore has counts
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/packages/datastore/interfaces/datastore-has-primary-key" class="">
+                        Datastore has primary key
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/packages/datastore/interfaces/datastore-has-where" class="">
+                        Datastore has where
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/packages/datastore/interfaces/introduction" class="">
+                        Introduction
+                    </a>
+                </div>
+                        
+                    </div>
+                </details>
+                                                <details class="nav-section" >
+                    <summary>
+                                                    Traits
+                                            </summary>
+                    <div class="nav-group">
+                                                            <div class="nav-item">
+                    <a href="/packages/datastore/traits/introduction" class="">
+                        Introduction
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/packages/datastore/traits/with-datastore-count-decorator" class="">
+                        With datastore count decorator
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/packages/datastore/traits/with-datastore-decorator" class="">
+                        With datastore decorator
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/packages/datastore/traits/with-datastore-primary-key-decorator" class="">
+                        With datastore primary key decorator
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/packages/datastore/traits/with-datastore-where-decorator" class="">
+                        With datastore where decorator
+                    </a>
+                </div>
+                        
+                    </div>
+                </details>
+                        
+                    </div>
+                </details>
+                                                <details class="nav-section" >
+                    <summary>
+                                                    Rest
+                                            </summary>
+                    <div class="nav-group">
+                                                            <div class="nav-item">
+                    <a href="/packages/rest/controllers" class="">
+                        Controllers
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/packages/rest/integration-guide" class="">
+                        Integration guide
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/packages/rest/introduction" class="">
+                        Introduction
+                    </a>
+                </div>
+                                                <details class="nav-section" >
+                    <summary>
+                                                    Interceptors
+                                            </summary>
+                    <div class="nav-group">
+                                                            <div class="nav-item">
+                    <a href="/packages/rest/interceptors/introduction" class="">
+                        Introduction
+                    </a>
+                </div>
+                                                <details class="nav-section" >
+                    <summary>
+                                                    Included interceptors
+                                            </summary>
+                    <div class="nav-group">
+                                                            <div class="nav-item">
+                    <a href="/packages/rest/interceptors/included-interceptors/event-interceptor" class="">
+                        Event interceptor
+                    </a>
+                </div>
+                        
+                    </div>
+                </details>
+                        
+                    </div>
+                </details>
+                                                <details class="nav-section" >
+                    <summary>
+                                                    Middleware
+                                            </summary>
+                    <div class="nav-group">
+                                                            <div class="nav-item">
+                    <a href="/packages/rest/middleware/introduction" class="">
+                        Introduction
+                    </a>
+                </div>
+                                                <details class="nav-section" >
+                    <summary>
+                                                    Included middleware
+                                            </summary>
+                    <div class="nav-group">
+                                                            <div class="nav-item">
+                    <a href="/packages/rest/middleware/included-middleware/callback-middleware" class="">
+                        Callback middleware
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/packages/rest/middleware/included-middleware/parse-jwt-middleware" class="">
+                        Parse jwt middleware
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/packages/rest/middleware/included-middleware/set-type-middleware" class="">
+                        Set type middleware
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/packages/rest/middleware/included-middleware/validation-middleware" class="">
+                        Validation middleware
+                    </a>
+                </div>
+                        
+                    </div>
+                </details>
+                        
+                    </div>
+                </details>
+                                                <details class="nav-section" >
+                    <summary>
+                                                    Validations
+                                            </summary>
+                    <div class="nav-group">
+                                                            <div class="nav-item">
+                    <a href="/packages/rest/validations/introduction" class="">
+                        Introduction
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/packages/rest/validations/validation-set" class="">
+                        Validation set
+                    </a>
+                </div>
+                                                <details class="nav-section" >
+                    <summary>
+                                                    Included validations
+                                            </summary>
+                    <div class="nav-group">
+                                                            <div class="nav-item">
+                    <a href="/packages/rest/validations/included-validations/is-any" class="">
+                        Is any
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/packages/rest/validations/included-validations/is-email" class="">
+                        Is email
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/packages/rest/validations/included-validations/is-greater-than" class="">
+                        Is greater than
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/packages/rest/validations/included-validations/is-numeric" class="">
+                        Is numeric
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/packages/rest/validations/included-validations/is-type" class="">
+                        Is type
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/packages/rest/validations/included-validations/keys-are-any" class="">
+                        Keys are any
+                    </a>
+                </div>
+                        
+                    </div>
+                </details>
+                        
+                    </div>
+                </details>
+                        
+                    </div>
+                </details>
+                                                <details class="nav-section" >
+                    <summary>
+                                                    Utils
+                                            </summary>
+                    <div class="nav-group">
+                                                            <div class="nav-item">
+                    <a href="/packages/utils/array-helper" class="">
+                        Array helper
+                    </a>
+                </div>
+                                                <details class="nav-section" >
+                    <summary>
+                                                    Processors
+                                            </summary>
+                    <div class="nav-group">
+                                                            <div class="nav-item">
+                    <a href="/packages/utils/processors/array-processor" class="">
+                        Array processor
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/packages/utils/processors/list-filter" class="">
+                        List filter
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/packages/utils/processors/list-sorter" class="">
+                        List sorter
+                    </a>
+                </div>
+                        
+                    </div>
+                </details>
+                        
+                    </div>
+                </details>
+                        
+                    </div>
+                </details>
+                        
+</nav>            </aside>
+    <main class="docs-content">
+            <h1 id="junction-tables-and-many-to-many-relationships">Junction Tables and Many-to-Many Relationships</h1>
+<p>Junction tables (also called join tables or pivot tables) are used to represent <strong>many-to-many relationships</strong> between two entities. For example, posts can have many tags, and tags can be applied to many posts. A junction table stores these associations without duplicating data.</p>
+<p>PHPNomad provides patterns for defining junction table schemas and working with many-to-many relationships through datastores.</p>
+<h2 id="what-is-a-junction-table">What is a Junction Table?</h2>
+<p>A junction table has:</p>
+<ul>
+<li><strong>Two foreign key columns</strong> — one for each side of the relationship</li>
+<li><strong>Compound primary key</strong> — both foreign keys together form the primary key</li>
+<li><strong>No additional data</strong> — it only stores associations (for pure many-to-many)</li>
+<li><strong>Indexes on both columns</strong> — for efficient lookups in both directions</li>
+</ul>
+<h3 id="example-posts-and-tags">Example: Posts and Tags</h3>
+<p><strong>Scenario:</strong> Posts can have multiple tags, and tags can be applied to multiple posts.</p>
+<p><strong>Tables:</strong></p>
+<ul>
+<li><code>posts</code> — stores post data (<code>id</code>, <code>title</code>, <code>content</code>, etc.)</li>
+<li><code>tags</code> — stores tag data (<code>id</code>, <code>name</code>, <code>slug</code>, etc.)</li>
+<li><code>post_tags</code> — junction table storing associations</li>
+</ul>
+<p><strong>Relationship:</strong></p>
+<pre><code>posts (1) ←→ (many) post_tags (many) ←→ (1) tags
+</code></pre>
+<hr />
+<h2 id="defining-a-junction-table">Defining a Junction Table</h2>
+<p>Junction tables extend <code>Table</code> and follow a specific pattern:</p>
+<pre><code class="language-php">&lt;?php
+
+namespace App\Service\Datastores\PostTag;
+
+use PHPNomad\Database\Abstracts\Table;
+use PHPNomad\Database\Factories\Column;
+use PHPNomad\Database\Factories\Index;
+
+class PostTagsTable extends Table
+{
+    public function getUnprefixedName(): string
+    {
+        return 'post_tags';  // Plural form
+    }
+
+    public function getSingularUnprefixedName(): string
+    {
+        return 'post_tag';  // Singular form
+    }
+
+    public function getAlias(): string
+    {
+        return 'pt';  // Short alias for queries
+    }
+
+    public function getTableVersion(): string
+    {
+        return '1';
+    }
+
+    public function getColumns(): array
+    {
+        return [
+            new Column('post_id', 'BIGINT', null, 'NOT NULL'),
+            new Column('tag_id', 'BIGINT', null, 'NOT NULL'),
+        ];
+    }
+
+    public function getIndices(): array
+    {
+        return [
+            // Compound primary key
+            new Index(['post_id', 'tag_id'], 'primary', 'PRIMARY KEY'),
+            
+            // Index for &quot;which tags are on this post?&quot;
+            new Index(['post_id'], 'post_idx', 'INDEX'),
+            
+            // Index for &quot;which posts have this tag?&quot;
+            new Index(['tag_id'], 'tag_idx', 'INDEX'),
+        ];
+    }
+}
+</code></pre>
+<p><strong>Key features:</strong></p>
+<ol>
+<li><strong>Two foreign key columns</strong> — <code>post_id</code> and <code>tag_id</code></li>
+<li><strong>Compound primary key</strong> — <code>['post_id', 'tag_id']</code> ensures uniqueness</li>
+<li><strong>Two single-column indexes</strong> — support queries in both directions</li>
+</ol>
+<hr />
+<h2 id="junction-table-naming-convention">Junction Table Naming Convention</h2>
+<p>Follow these conventions for consistency:</p>
+<p><strong>Format:</strong> <code>{entity1}_{entity2}</code> (alphabetical or logical order)</p>
+<p><strong>Examples:</strong></p>
+<ul>
+<li><code>post_tags</code> — posts to tags</li>
+<li><code>user_roles</code> — users to roles</li>
+<li><code>programs_program_groups</code> — programs to program groups</li>
+<li><code>order_products</code> — orders to products</li>
+</ul>
+<p><strong>Singular name:</strong></p>
+<ul>
+<li><code>post_tag</code></li>
+<li><code>user_role</code></li>
+<li><code>program_program_group</code></li>
+</ul>
+<hr />
+<h2 id="junction-table-model">Junction Table Model</h2>
+<p>Create a simple model representing the association:</p>
+<pre><code class="language-php">&lt;?php
+
+namespace App\Core\Models;
+
+use PHPNomad\Datastore\Interfaces\DataModel;
+
+class PostTag implements DataModel
+{
+    public function __construct(
+        public readonly int $postId,
+        public readonly int $tagId
+    ) {}
+}
+</code></pre>
+<p><strong>Note:</strong> Junction models typically have no additional properties—just the two IDs that form the compound key.</p>
+<hr />
+<h2 id="junction-table-adapter">Junction Table Adapter</h2>
+<p>The adapter converts between the model and storage:</p>
+<pre><code class="language-php">&lt;?php
+
+namespace App\Core\Models\Adapters;
+
+use PHPNomad\Datastore\Interfaces\DataModel;
+use PHPNomad\Datastore\Interfaces\ModelAdapter;
+use PHPNomad\Utils\Helpers\Arr;
+use App\Core\Models\PostTag;
+
+class PostTagAdapter implements ModelAdapter
+{
+    public function toArray(DataModel $model): array
+    {
+        return [
+            'post_id' =&gt; $model-&gt;postId,
+            'tag_id' =&gt; $model-&gt;tagId,
+        ];
+    }
+
+    public function toModel(array $array): DataModel
+    {
+        return new PostTag(
+            postId: Arr::get($array, 'post_id'),
+            tagId: Arr::get($array, 'tag_id')
+        );
+    }
+}
+</code></pre>
+<hr />
+<h2 id="junction-table-datastore">Junction Table Datastore</h2>
+<p>Define the datastore interface and implementation:</p>
+<h3 id="interface">Interface</h3>
+<pre><code class="language-php">&lt;?php
+
+namespace App\Core\Datastores\PostTag\Interfaces;
+
+use PHPNomad\Datastore\Interfaces\Datastore;
+
+interface PostTagDatastore extends Datastore
+{
+    /**
+     * Get all tags for a post
+     */
+    public function getTagsForPost(int $postId): iterable;
+    
+    /**
+     * Get all posts for a tag
+     */
+    public function getPostsForTag(int $tagId): iterable;
+    
+    /**
+     * Add a tag to a post
+     */
+    public function addTagToPost(int $postId, int $tagId): void;
+    
+    /**
+     * Remove a tag from a post
+     */
+    public function removeTagFromPost(int $postId, int $tagId): void;
+    
+    /**
+     * Check if a post has a specific tag
+     */
+    public function postHasTag(int $postId, int $tagId): bool;
+}
+</code></pre>
+<h3 id="implementation">Implementation</h3>
+<pre><code class="language-php">&lt;?php
+
+namespace App\Core\Datastores\PostTag;
+
+use PHPNomad\Datastore\Traits\WithDatastoreDecorator;
+use App\Core\Datastores\PostTag\Interfaces\PostTagDatastore as IPostTagDatastore;
+use App\Core\Datastores\PostTag\Interfaces\PostTagDatastoreHandler;
+use App\Core\Models\PostTag;
+
+class PostTagDatastore implements IPostTagDatastore
+{
+    use WithDatastoreDecorator;
+
+    public function __construct(
+        private PostTagDatastoreHandler $handler
+    ) {}
+
+    public function getTagsForPost(int $postId): iterable
+    {
+        return $this-&gt;handler-&gt;get(['post_id' =&gt; $postId]);
+    }
+
+    public function getPostsForTag(int $tagId): iterable
+    {
+        return $this-&gt;handler-&gt;get(['tag_id' =&gt; $tagId]);
+    }
+
+    public function addTagToPost(int $postId, int $tagId): void
+    {
+        $association = new PostTag($postId, $tagId);
+        $this-&gt;handler-&gt;save($association);
+    }
+
+    public function removeTagFromPost(int $postId, int $tagId): void
+    {
+        $association = new PostTag($postId, $tagId);
+        $this-&gt;handler-&gt;delete($association);
+    }
+
+    public function postHasTag(int $postId, int $tagId): bool
+    {
+        $results = $this-&gt;handler-&gt;get([
+            'post_id' =&gt; $postId,
+            'tag_id' =&gt; $tagId,
+        ]);
+        
+        return !empty($results);
+    }
+}
+</code></pre>
+<hr />
+<h2 id="working-with-junction-tables">Working with Junction Tables</h2>
+<h3 id="adding-associations">Adding Associations</h3>
+<pre><code class="language-php">// Add multiple tags to a post
+$postTags = $container-&gt;get(PostTagDatastore::class);
+
+$tagIds = [1, 5, 12, 23];
+foreach ($tagIds as $tagId) {
+    $postTags-&gt;addTagToPost(postId: 42, tagId: $tagId);
+}
+</code></pre>
+<h3 id="querying-associations">Querying Associations</h3>
+<pre><code class="language-php">// Get all tags for a post
+$associations = $postTags-&gt;getTagsForPost(42);
+
+foreach ($associations as $association) {
+    echo &quot;Post 42 has tag {$association-&gt;tagId}\n&quot;;
+}
+
+// Get all posts for a tag
+$associations = $postTags-&gt;getPostsForTag(5);
+
+foreach ($associations as $association) {
+    echo &quot;Tag 5 is on post {$association-&gt;postId}\n&quot;;
+}
+</code></pre>
+<h3 id="removing-associations">Removing Associations</h3>
+<pre><code class="language-php">// Remove a specific tag from a post
+$postTags-&gt;removeTagFromPost(postId: 42, tagId: 5);
+
+// Remove all tags from a post
+$associations = $postTags-&gt;getTagsForPost(42);
+foreach ($associations as $association) {
+    $postTags-&gt;delete($association);
+}
+</code></pre>
+<h3 id="checking-association-existence">Checking Association Existence</h3>
+<pre><code class="language-php">if ($postTags-&gt;postHasTag(postId: 42, tagId: 5)) {
+    echo &quot;Post 42 has tag 5&quot;;
+}
+</code></pre>
+<hr />
+<h2 id="loading-related-data">Loading Related Data</h2>
+<p>Junction tables are often used with joins to load related entities:</p>
+<h3 id="service-layer-pattern">Service Layer Pattern</h3>
+<pre><code class="language-php">&lt;?php
+
+namespace App\Services;
+
+class PostService
+{
+    public function __construct(
+        private PostDatastore $posts,
+        private PostTagDatastore $postTags,
+        private TagDatastore $tags
+    ) {}
+
+    /**
+     * Get a post with all its tags loaded
+     */
+    public function getPostWithTags(int $postId): array
+    {
+        $post = $this-&gt;posts-&gt;find($postId);
+        
+        // Get tag associations for this post
+        $associations = $this-&gt;postTags-&gt;getTagsForPost($postId);
+        
+        // Load actual tag models
+        $tags = [];
+        foreach ($associations as $association) {
+            $tags[] = $this-&gt;tags-&gt;find($association-&gt;tagId);
+        }
+        
+        return [
+            'post' =&gt; $post,
+            'tags' =&gt; $tags,
+        ];
+    }
+
+    /**
+     * Get all posts for a tag
+     */
+    public function getPostsForTag(int $tagId): array
+    {
+        $tag = $this-&gt;tags-&gt;find($tagId);
+        
+        // Get post associations for this tag
+        $associations = $this-&gt;postTags-&gt;getPostsForTag($tagId);
+        
+        // Load actual post models
+        $posts = [];
+        foreach ($associations as $association) {
+            $posts[] = $this-&gt;posts-&gt;find($association-&gt;postId);
+        }
+        
+        return [
+            'tag' =&gt; $tag,
+            'posts' =&gt; $posts,
+        ];
+    }
+}
+</code></pre>
+<hr />
+<h2 id="junction-tables-with-additional-data">Junction Tables with Additional Data</h2>
+<p>Sometimes you need to store <strong>metadata</strong> about the relationship itself. For example, storing when a tag was added to a post, or who added it.</p>
+<h3 id="extended-junction-table">Extended Junction Table</h3>
+<pre><code class="language-php">class PostTagsTable extends Table
+{
+    public function getColumns(): array
+    {
+        return [
+            new Column('post_id', 'BIGINT', null, 'NOT NULL'),
+            new Column('tag_id', 'BIGINT', null, 'NOT NULL'),
+            
+            // Additional metadata
+            new Column('added_by_user_id', 'BIGINT', null, 'NULL'),
+            (new DateCreatedFactory())-&gt;toColumn(),
+        ];
+    }
+
+    public function getIndices(): array
+    {
+        return [
+            new Index(['post_id', 'tag_id'], 'primary', 'PRIMARY KEY'),
+            new Index(['post_id'], 'post_idx', 'INDEX'),
+            new Index(['tag_id'], 'tag_idx', 'INDEX'),
+            new Index(['added_by_user_id'], 'user_idx', 'INDEX'),
+        ];
+    }
+}
+</code></pre>
+<h3 id="extended-model">Extended Model</h3>
+<pre><code class="language-php">class PostTag implements DataModel
+{
+    public function __construct(
+        public readonly int $postId,
+        public readonly int $tagId,
+        public readonly ?int $addedByUserId = null,
+        public readonly ?\DateTime $createdAt = null
+    ) {}
+}
+</code></pre>
+<hr />
+<h2 id="multiple-junction-tables">Multiple Junction Tables</h2>
+<p>Complex systems often have multiple many-to-many relationships:</p>
+<p><strong>Example: E-commerce system</strong></p>
+<pre><code class="language-php">// Products and categories
+class ProductCategoriesTable extends Table { ... }
+
+// Orders and products (with quantity, price at time of order)
+class OrderProductsTable extends Table
+{
+    public function getColumns(): array
+    {
+        return [
+            new Column('order_id', 'BIGINT', null, 'NOT NULL'),
+            new Column('product_id', 'BIGINT', null, 'NOT NULL'),
+            new Column('quantity', 'INT', null, 'NOT NULL'),
+            new Column('price_at_purchase', 'DECIMAL', [10, 2], 'NOT NULL'),
+        ];
+    }
+}
+
+// Users and roles
+class UserRolesTable extends Table { ... }
+</code></pre>
+<hr />
+<h2 id="best-practices">Best Practices</h2>
+<h3 id="always-use-compound-primary-keys">Always Use Compound Primary Keys</h3>
+<pre><code class="language-php">// ✅ GOOD: compound primary key prevents duplicates
+new Index(['post_id', 'tag_id'], 'primary', 'PRIMARY KEY')
+
+// ❌ BAD: allows duplicate associations
+new Column('id', 'INT', null, 'NOT NULL AUTO_INCREMENT PRIMARY KEY')
+new Column('post_id', 'BIGINT', null, 'NOT NULL')
+new Column('tag_id', 'BIGINT', null, 'NOT NULL')
+</code></pre>
+<h3 id="index-both-directions">Index Both Directions</h3>
+<pre><code class="language-php">// ✅ GOOD: supports queries in both directions
+new Index(['post_id'], 'post_idx', 'INDEX'),  // &quot;tags for post&quot;
+new Index(['tag_id'], 'tag_idx', 'INDEX'),    // &quot;posts for tag&quot;
+
+// ❌ BAD: only one direction is fast
+new Index(['post_id'], 'post_idx', 'INDEX'),
+</code></pre>
+<h3 id="name-consistently">Name Consistently</h3>
+<pre><code class="language-php">// ✅ GOOD: consistent naming
+post_tags table, post_id and tag_id columns
+
+// ❌ BAD: inconsistent
+posts_to_tags table, postId and tagId columns
+</code></pre>
+<h3 id="keep-models-simple">Keep Models Simple</h3>
+<pre><code class="language-php">// ✅ GOOD: minimal junction model
+class PostTag
+{
+    public function __construct(
+        public readonly int $postId,
+        public readonly int $tagId
+    ) {}
+}
+
+// ❌ BAD: junction model with business logic
+class PostTag
+{
+    public function isActive(): bool { ... }
+    public function validate(): void { ... }
+}
+</code></pre>
+<h3 id="use-batch-operations">Use Batch Operations</h3>
+<pre><code class="language-php">// ✅ GOOD: batch insert
+foreach ($tagIds as $tagId) {
+    $postTags-&gt;addTagToPost($postId, $tagId);
+}
+
+// ✅ EVEN BETTER: if your datastore supports bulk operations
+$postTags-&gt;bulkAddTags($postId, $tagIds);
+</code></pre>
+<hr />
+<h2 id="whats-next">What's Next</h2>
+<ul>
+<li><a href="/packages/database/table-schema-definition">Table Schema Definition</a> — detailed table definition reference</li>
+<li><a href="/packages/database/handlers/introduction">Database Handlers</a> — implementing handlers for junction tables</li>
+<li><a href="/packages/datastore/model-adapters">Model Adapters</a> — creating adapters for junction models</li>
+</ul>
+
+    </main>
+</div>
+
+<footer>
+    <p class="mod--center">These docs were built with <a href="https://www.github.com/phpnomad/documentation">a static site generator that was made with PHPNomad.</a></p>
+<small class="mod--center">Made and maintained by the people at <a href="https://www.novatori.us">Novatorius</a>. <em>Mente Nova!</em></small></footer>
+</body>
+</html>
+
