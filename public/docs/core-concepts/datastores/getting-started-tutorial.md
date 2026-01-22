@@ -274,33 +274,15 @@ class PostDatastore implements PostDatastoreInterface
 
     public function getPublishedPosts(): array
     {
-        return $this->datastoreHandler->where([
-            [
-                'type' => 'AND',
-                'clauses' => [
-                    [
-                        'column' => 'publishedDate',
-                        'operator' => '<=',
-                        'value' => date('Y-m-d H:i:s')
-                    ]
-                ]
-            ]
+        return $this->datastoreHandler->andWhere([
+            ['column' => 'publishedDate', 'operator' => '<=', 'value' => date('Y-m-d H:i:s')]
         ]);
     }
 
     public function getByAuthor(int $authorId): array
     {
-        return $this->datastoreHandler->where([
-            [
-                'type' => 'AND',
-                'clauses' => [
-                    [
-                        'column' => 'authorId',
-                        'operator' => '=',
-                        'value' => $authorId
-                    ]
-                ]
-            ]
+        return $this->datastoreHandler->andWhere([
+            ['column' => 'authorId', 'operator' => '=', 'value' => $authorId]
         ]);
     }
 }
@@ -504,7 +486,66 @@ For detailed information about database handlers, see [Database Handlers](../pac
 
 ---
 
-## Step 7: Register with dependency injection
+## Step 7: Create table installer
+
+Your table schema is defined, but it won't create itself. You need an **installer** that creates the table when your application is activated or installed.
+
+Create `Blog/Service/Installer.php`:
+
+```php
+<?php
+
+namespace Blog\Service;
+
+use PHPNomad\Di\Interfaces\CanSetContainer;
+use PHPNomad\Di\Traits\HasSettableContainer;
+use PHPNomad\Framework\Traits\CanInstallTables;
+use PHPNomad\Loader\Interfaces\Loadable;
+use Blog\Service\Datastores\Post\PostsTable;
+
+class Installer implements CanSetContainer, Loadable
+{
+    use HasSettableContainer;
+    use CanInstallTables;
+
+    public function load(): void
+    {
+        $this->createTables();
+    }
+
+    protected function getTablesToInstall(): array
+    {
+        return [
+            PostsTable::class,
+        ];
+    }
+}
+```
+
+**How installers work:**
+
+- `CanInstallTables` trait provides the table installation logic
+- `getTablesToInstall()` returns an array of table classes to create
+- `createTables()` checks if tables exist and creates/updates them
+- Installers are idempotent—safe to run multiple times
+
+**When installers run:**
+
+Installers run during specific installation events, not on every page load:
+
+- **WordPress plugins**: On plugin activation via `register_activation_hook()`
+- **CLI applications**: During install commands
+- **Manual triggers**: When deploying schema changes
+
+The installer checks the current database state and only creates/updates tables when needed. If your table already exists and matches the schema version, the installer does nothing.
+
+**Why this matters:**
+
+Without an installer, your table definitions exist in code but never get executed. The installer is the bridge between your schema definition and the actual database structure.
+
+---
+
+## Step 8: Register with dependency injection
 
 Register your datastore components with PHPNomad's dependency injection container so they can be auto-wired.
 
@@ -539,16 +580,136 @@ final class Initializer implements CanSetContainer, HasClassDefinitions
 ```
 
 **Key points**:
-- Maps concrete classes to their interfaces
-- Enables dependency injection throughout your application
-- The container will auto-wire all constructor dependencies
-- Bindings are read by PHPNomad's container during bootstrap
+- `HasClassDefinitions` tells PHPNomad this initializer registers class bindings
+- Maps concrete implementations to their interfaces
+- The container auto-wires all constructor dependencies
+- Format is: `Implementation::class => Interface::class`
 
-For complete initialization and DI patterns, see [Dependency Injection](dependency-injection).
+### Create a Loader
+
+Now create a loader that combines your initializers:
+
+Create `Blog/Loader.php`:
+
+```php
+<?php
+
+namespace Blog;
+
+use PHPNomad\Di\Interfaces\CanSetContainer;
+use PHPNomad\Di\Traits\HasSettableContainer;
+use PHPNomad\Loader\Interfaces\Loadable;
+use PHPNomad\Loader\Traits\CanLoadInitializers;
+use Blog\Service\Initializer as ServiceInitializer;
+
+class Loader implements CanSetContainer, Loadable
+{
+    use CanLoadInitializers;
+    use HasSettableContainer;
+
+    public function __construct()
+    {
+        $this->initializers = [
+            new ServiceInitializer(),
+        ];
+    }
+
+    public function load(): void
+    {
+        $this->loadInitializers();
+    }
+}
+```
+
+The loader collects all your initializers and loads them in order during bootstrap.
+
+For complete initialization patterns, see [Creating and Managing Initializers](/core-concepts/bootstrapping/creating-and-managing-initializers).
 
 ---
 
-## Step 8: Use your datastore
+## Step 9: Bootstrap your application
+
+Finally, create an Application class that ties everything together:
+
+Create `Blog/Application.php`:
+
+```php
+<?php
+
+namespace Blog;
+
+use PHPNomad\Di\Container;
+use PHPNomad\Loader\Bootstrapper;
+use Blog\Loader;
+use Blog\Service\Installer;
+
+class Application
+{
+    protected Container $container;
+
+    public function __construct()
+    {
+        $this->container = new Container();
+    }
+
+    /**
+     * Normal application initialization
+     */
+    public function init(): void
+    {
+        (new Bootstrapper(
+            $this->container,
+            new Loader()  // Loads all initializers
+        ))->load();
+    }
+
+    /**
+     * Run during plugin activation or installation
+     */
+    public function install(): void
+    {
+        (new Bootstrapper(
+            $this->container,
+            new Installer()  // Creates database tables
+        ))->load();
+    }
+}
+```
+
+**How to use:**
+
+For WordPress plugins, hook into activation and init:
+
+```php
+<?php
+// blog-plugin.php
+
+use Blog\Application;
+
+// Install tables on plugin activation
+register_activation_hook(__FILE__, function() {
+    $app = new Application();
+    $app->install();
+});
+
+// Normal app initialization
+add_action('plugins_loaded', function() {
+    $app = new Application();
+    $app->init();
+});
+```
+
+**Key insights:**
+
+- `install()` runs the installer (creates tables) - only on activation
+- `init()` loads initializers (registers classes) - runs on every page load
+- The bootstrapper handles dependency resolution and initialization order
+
+For complete bootstrapping documentation, see [Bootstrapping Introduction](/core-concepts/bootstrapping/introduction).
+
+---
+
+## Step 10: Use your datastore
 
 Once registered, you can inject and use your datastore anywhere in your application:
 
@@ -618,7 +779,10 @@ You have built a complete database-backed datastore with all components:
 - ✅ **Core Implementation** - Business logic with decorator pattern
 - ✅ **Table Schema** - Database structure with columns and indices
 - ✅ **Database Handler** - Actual database operations
-- ✅ **DI Registration** - Makes everything available via injection
+- ✅ **Installer** - Creates and manages database tables
+- ✅ **Initializer** - Registers components with DI
+- ✅ **Loader** - Combines initializers for bootstrapping
+- ✅ **Application** - Orchestrates init and install workflows
 
 Your datastore now supports:
 
@@ -626,6 +790,8 @@ Your datastore now supports:
 - Custom business queries (published posts, posts by author)
 - Automatic caching and event broadcasting
 - Swappable implementations (could replace database with REST API)
+- Proper table installation and schema versioning
+- Clean bootstrapping and initialization patterns
 
 ---
 
