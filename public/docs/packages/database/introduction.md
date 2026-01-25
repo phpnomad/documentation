@@ -47,6 +47,7 @@ see_also:
   - handlers/introduction
   - tables/introduction
   - table-schema-definition
+  - ../logger/introduction
 noindex: false
 ---
 
@@ -410,7 +411,8 @@ If your data comes from REST APIs, GraphQL, or other non-database sources, you d
 
 - **[phpnomad/datastore](../datastore/introduction)** — Defines interfaces that database handlers implement
 - **phpnomad/models** — Provides DataModel interface (covered in [Models and Identity](../../core-concepts/models-and-identity))
-- **phpnomad/events** — EventStrategy interface for broadcasting events
+- **[phpnomad/event](../event/introduction)** — EventStrategy interface for broadcasting events
+- **[phpnomad/logger](../logger/introduction)** — LoggerStrategy interface for operation logging
 
 ---
 
