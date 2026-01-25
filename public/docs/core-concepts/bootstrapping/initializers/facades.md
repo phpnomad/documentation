@@ -291,3 +291,11 @@ Consider alternatives when:
 Remember: Facades in PHPNomad combine the singleton pattern with static access to provide convenient, globally
 accessible services while maintaining the flexibility to work across different platforms. The key is to use them
 thoughtfully and always remember to include the `WithInstance` trait.
+
+---
+
+## Related Documentation
+
+- [Singleton Package](/packages/singleton/introduction) — WithInstance trait used by all facades
+- [Logger Package](/packages/logger/introduction) — LoggerStrategy interface shown in examples
+- [Event Package](/packages/event/introduction) — EventStrategy interface for event facades
