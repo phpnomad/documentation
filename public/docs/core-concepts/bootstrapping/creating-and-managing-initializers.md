@@ -111,6 +111,27 @@ class ApiInitializer implements HasControllers
 }
 ```
 
+### GraphQL Initializers
+
+For applications exposing a GraphQL API, initializers can register type definitions:
+
+```php
+class GraphQLTypesInitializer implements HasTypeDefinitions
+{
+    public function getTypeDefinitions(): array
+    {
+        return [
+            BookTypeDefinition::class,
+            AuthorTypeDefinition::class,
+        ];
+    }
+}
+```
+
+Each `TypeDefinition` provides an SDL fragment and a resolver map. The bootstrapper passes them into the active
+`GraphQLStrategy`, which composes the full schema at first execution.
+See [GraphQL Type Definitions](/core-concepts/bootstrapping/initializers/graphql-type-definitions) for the full pattern.
+
 ## Best Practices
 
 ### Keep It Focused
