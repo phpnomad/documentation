@@ -69,6 +69,11 @@
                     </a>
                 </div>
                                                 <div class="nav-item">
+                    <a href="/core-concepts/bootstrapping/initializers/graphql-type-definitions" class="">
+                        Graphql type definitions
+                    </a>
+                </div>
+                                                <div class="nav-item">
                     <a href="/core-concepts/bootstrapping/initializers/rest-controllers" class="">
                         Rest controllers
                     </a>
@@ -318,6 +323,39 @@
                         
                     </div>
                 </details>
+                        
+                    </div>
+                </details>
+                                                <details class="nav-section" >
+                    <summary>
+                                                    Graphql
+                                            </summary>
+                    <div class="nav-group">
+                                                            <div class="nav-item">
+                    <a href="/packages/graphql/field-resolvers" class="">
+                        Field resolvers
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/packages/graphql/integration-guide" class="">
+                        Integration guide
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/packages/graphql/introduction" class="">
+                        Introduction
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/packages/graphql/type-definitions" class="">
+                        Type definitions
+                    </a>
+                </div>
+                                                <div class="nav-item">
+                    <a href="/packages/graphql/webonyx-integration" class="">
+                        Webonyx integration
+                    </a>
+                </div>
                         
                     </div>
                 </details>
@@ -598,6 +636,22 @@ shared initializers, we create separate initializers that focus solely on platfo
     }
 }
 </code></pre>
+<h3 id="graphql-initializers">GraphQL Initializers</h3>
+<p>For applications exposing a GraphQL API, initializers can register type definitions:</p>
+<pre><code class="language-php">class GraphQLTypesInitializer implements HasTypeDefinitions
+{
+    public function getTypeDefinitions(): array
+    {
+        return [
+            BookTypeDefinition::class,
+            AuthorTypeDefinition::class,
+        ];
+    }
+}
+</code></pre>
+<p>Each <code>TypeDefinition</code> provides an SDL fragment and a resolver map. The bootstrapper passes them into the active
+<code>GraphQLStrategy</code>, which composes the full schema at first execution.
+See <a href="/core-concepts/bootstrapping/initializers/graphql-type-definitions">GraphQL Type Definitions</a> for the full pattern.</p>
 <h2 id="best-practices">Best Practices</h2>
 <h3 id="keep-it-focused">Keep It Focused</h3>
 <p>Each initializer should do one thing and do it well. If you find your initializer handling multiple unrelated tasks,

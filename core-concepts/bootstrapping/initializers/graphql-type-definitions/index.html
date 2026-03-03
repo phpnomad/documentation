@@ -18,12 +18,12 @@
                     <a href="/"><img src="/public/assets/logo.png" alt="PHPNomad Logo"/></a>
             <nav>
     
-                                        <details class="nav-section" >
+                                        <details class="nav-section" open>
                     <summary>
                                                     Core concepts
                                             </summary>
                     <div class="nav-group">
-                                                            <details class="nav-section" >
+                                                            <details class="nav-section" open>
                     <summary>
                                                     Bootstrapping
                                             </summary>
@@ -48,7 +48,7 @@
                         Platform integrations
                     </a>
                 </div>
-                                                <details class="nav-section" >
+                                                <details class="nav-section" open>
                     <summary>
                                                     Initializers
                                             </summary>
@@ -110,7 +110,7 @@
                         
                     </div>
                 </details>
-                                                <details class="nav-section" open>
+                                                <details class="nav-section" >
                     <summary>
                                                     Packages
                                             </summary>
@@ -232,7 +232,7 @@
                         
                     </div>
                 </details>
-                                                <details class="nav-section" open>
+                                                <details class="nav-section" >
                     <summary>
                                                     Datastore
                                             </summary>
@@ -547,581 +547,72 @@
                         
 </nav>            </aside>
     <main class="docs-content">
-            <h1 id="core-datastore-layer">Core Datastore Layer</h1>
-<h2 id="what-is-the-core-layer">What is the Core layer?</h2>
-<p>The Core layer is where you define business-level data operations without any knowledge of how data is actually stored or retrieved. It contains interfaces that declare what operations are possible, and implementations that delegate standard operations while adding custom business logic.</p>
-<p>Core never depends on Service. It knows nothing about databases, REST APIs, GraphQL, or any concrete storage technology. This separation ensures your domain logic remains portable and independent of infrastructure.</p>
-<p>The Core layer contains:</p>
+            <h1 id="graphql-type-definitions-in-phpnomad">GraphQL Type Definitions in PHPNomad</h1>
+<p>GraphQL type definitions define an <strong>SDL fragment and a resolver map</strong> — and they stay portable across engines.</p>
+<p>Instead of registering types inline, PHPNomad discovers them through <strong>Initializers</strong> that implement
+<strong><code>HasTypeDefinitions</code></strong>. This keeps your schema modular and decoupled from the execution engine, and mirrors exactly
+how you already register REST controllers with <code>HasControllers</code>.</p>
+<h2 id="the-basics-how-registration-works">The Basics: How registration works</h2>
 <ul>
-<li><strong>Datastore interfaces</strong> - Public API for your application code</li>
-<li><strong>DatastoreHandler interfaces</strong> - Contract for storage implementations</li>
-<li><strong>Datastore implementations</strong> - Delegation layer using decorator pattern</li>
-<li><strong>Models</strong> - Domain entities (covered in <a href="models-and-identity">Models and Identity</a>)</li>
+<li><strong>TypeDefinition</strong>: a class implementing <code>TypeDefinition</code> — provides <code>getSdl()</code> and <code>getResolvers()</code>.</li>
+<li><strong>Initializer implementing <code>HasTypeDefinitions</code></strong>: returns a list of <code>TypeDefinition</code> class-strings to load.</li>
+<li><strong>Bootstrapper</strong> configured to utilize the initializer.
+See <a href="/core-concepts/bootstrapping/creating-and-managing-initializers">Creating and Managing Initializers</a> for more
+information.</li>
 </ul>
-<hr />
-<h2 id="directory-structure">Directory structure</h2>
-<p>The standard directory structure for Core datastores:</p>
-<pre><code>YourModule/
-└── Core/
-    ├── Models/
-    │   ├── Post.php
-    │   └── Adapters/
-    │       └── PostAdapter.php
-    └── Datastores/
-        └── Post/
-            ├── Interfaces/
-            │   ├── PostDatastore.php
-            │   └── PostDatastoreHandler.php
-            └── PostDatastore.php
-</code></pre>
-<p><strong>Key points:</strong></p>
-<ul>
-<li>Each entity gets its own directory under <code>Datastores/</code></li>
-<li>Interfaces live in <code>Interfaces/</code> subdirectory</li>
-<li>Implementation lives at the entity directory level</li>
-<li>Models and adapters are separate from datastores</li>
-</ul>
-<hr />
-<h2 id="naming-conventions">Naming conventions</h2>
-<p>Consistent naming makes codebases predictable and maintainable:</p>
-<table>
-<thead>
-<tr>
-<th>Component</th>
-<th>Pattern</th>
-<th>Example</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Datastore interface</td>
-<td><code>{Entity}Datastore</code></td>
-<td><code>PostDatastore</code></td>
-</tr>
-<tr>
-<td>DatastoreHandler interface</td>
-<td><code>{Entity}DatastoreHandler</code></td>
-<td><code>PostDatastoreHandler</code></td>
-</tr>
-<tr>
-<td>Datastore implementation</td>
-<td><code>{Entity}Datastore</code></td>
-<td><code>PostDatastore</code></td>
-</tr>
-<tr>
-<td>Model</td>
-<td><code>{Entity}</code></td>
-<td><code>Post</code></td>
-</tr>
-<tr>
-<td>Adapter</td>
-<td><code>{Entity}Adapter</code></td>
-<td><code>PostAdapter</code></td>
-</tr>
-</tbody>
-</table>
-<p><strong>Important:</strong> The Datastore interface and implementation share the same name. They are distinguished by namespace and the interface suffix in the interface file.</p>
-<hr />
-<h2 id="datastore-vs-datastorehandler-the-critical-distinction">Datastore vs DatastoreHandler: The critical distinction</h2>
-<p>This is the most confusing aspect of the datastore pattern. Understanding why both interfaces exist is essential to using the pattern effectively.</p>
-<h3 id="postdatastore-your-public-api">PostDatastore: Your public API</h3>
-<p>The <code>Datastore</code> interface defines your <strong>public API</strong>—what operations your application code can perform. This interface includes:</p>
-<ul>
-<li>Standard operations (if you choose to extend base interfaces)</li>
-<li>Custom business methods specific to this entity</li>
-</ul>
+<p>The container constructs <code>TypeDefinition</code> instances (resolving dependencies), and the active <code>GraphQLStrategy</code>
+accumulates them to build the schema.</p>
+<h2 id="minimal-typedefinition">Minimal TypeDefinition</h2>
 <pre><code class="language-php">&lt;?php
 
-namespace Blog\Core\Datastores\Post\Interfaces;
+use PHPNomad\GraphQL\Interfaces\TypeDefinition;
 
-use Blog\Core\Models\Post;
-use Nomad\Datastore\Interfaces\Datastore;
-use Nomad\Datastore\Interfaces\DatastoreHasPrimaryKey;
-use Nomad\Datastore\Interfaces\DatastoreHasWhere;
-
-interface PostDatastore extends Datastore, DatastoreHasPrimaryKey, DatastoreHasWhere
+final class BookTypeDefinition implements TypeDefinition
 {
-    /**
-     * Get all published posts.
-     *
-     * @return Post[]
-     */
-    public function getPublishedPosts(): array;
-
-    /**
-     * Get posts by a specific author.
-     *
-     * @param int $authorId
-     * @return Post[]
-     */
-    public function getByAuthor(int $authorId): array;
-}
-</code></pre>
-<p>This is what your controllers, services, and other application code depend on. This interface is your <strong>contract with consumers</strong>.</p>
-<h3 id="postdatastorehandler-the-implementation-contract">PostDatastoreHandler: The implementation contract</h3>
-<p>The <code>DatastoreHandler</code> interface defines the <strong>contract for storage implementations</strong>. This is what database handlers, REST handlers, and GraphQL handlers implement.</p>
-<pre><code class="language-php">&lt;?php
-
-namespace Blog\Core\Datastores\Post\Interfaces;
-
-use Nomad\Datastore\Interfaces\Datastore;
-use Nomad\Datastore\Interfaces\DatastoreHasPrimaryKey;
-use Nomad\Datastore\Interfaces\DatastoreHasWhere;
-
-interface PostDatastoreHandler extends Datastore, DatastoreHasPrimaryKey, DatastoreHasWhere
-{
-    // Only extends base interfaces
-    // NO custom business methods
-}
-</code></pre>
-<p><strong>Critical difference:</strong> The <code>DatastoreHandler</code> typically includes <strong>only</strong> standard interface operations. It does not include custom business methods like <code>getPublishedPosts()</code> or <code>getByAuthor()</code>.</p>
-<h3 id="why-the-separation">Why the separation?</h3>
-<p>The separation exists to distinguish between:</p>
-<ol>
-<li><strong>What your application needs</strong> (<code>PostDatastore</code>) - may include custom methods</li>
-<li><strong>What storage implementations must provide</strong> (<code>PostDatastoreHandler</code>) - usually just standard CRUD</li>
-</ol>
-<p>Consider this scenario:</p>
-<pre><code class="language-php">// Your Datastore interface (public API)
-interface PostDatastore extends Datastore, DatastoreHasPrimaryKey, DatastoreHasWhere
-{
-    public function getPublishedPosts(): array;
-    public function getByAuthor(int $authorId): array;
-}
-
-// Your DatastoreHandler interface (implementation contract)
-interface PostDatastoreHandler extends Datastore, DatastoreHasPrimaryKey, DatastoreHasWhere
-{
-    // Standard operations only
-}
-
-// Your Core implementation bridges them
-class PostDatastoreConcrete implements PostDatastore
-{
-    use WithDatastoreDecorator;
-    use WithDatastorePrimaryKeyDecorator;
-    use WithDatastoreWhereDecorator;
-
-    protected Datastore $datastoreHandler;
-
-    public function __construct(PostDatastoreHandler $datastoreHandler)
+    public function getSdl(): string
     {
-        $this-&gt;datastoreHandler = $datastoreHandler;
+        return &lt;&lt;&lt;'SDL'
+        type Book { id: ID! title: String! }
+        extend type Query { books: [Book!]! book(id: ID!): Book }
+        SDL;
     }
 
-    // Custom business method - implemented here, not in handler
-    public function getPublishedPosts(): array
+    public function getResolvers(): array
     {
-        return $this-&gt;datastoreHandler-&gt;where([
-            [
-                'type' =&gt; 'AND',
-                'clauses' =&gt; [
-                    ['column' =&gt; 'publishedDate', 'operator' =&gt; '&lt;=', 'value' =&gt; date('Y-m-d H:i:s')]
-                ]
-            ]
-        ]);
-    }
-
-    public function getByAuthor(int $authorId): array
-    {
-        return $this-&gt;datastoreHandler-&gt;where([
-            [
-                'type' =&gt; 'AND',
-                'clauses' =&gt; [
-                    ['column' =&gt; 'authorId', 'operator' =&gt; '=', 'value' =&gt; $authorId]
-                ]
-            ]
-        ]);
-    }
-}
-</code></pre>
-<p>The custom methods (<code>getPublishedPosts</code>, <code>getByAuthor</code>) are implemented in the Core datastore using the handler's <code>where()</code> method. The handler doesn't need to know about these business-specific queries—it just provides the building blocks.</p>
-<p><strong>This means:</strong></p>
-<ul>
-<li>Database handlers, REST handlers, GraphQL handlers only need to implement standard operations</li>
-<li>Business logic lives in the Core datastore, composed from handler primitives</li>
-<li>You can swap storage implementations without changing business methods</li>
-<li>Each handler implementation doesn't need to understand your specific business domain</li>
-</ul>
-<hr />
-<h2 id="when-to-extend-base-interfaces-and-when-not-to">When to extend base interfaces (and when not to)</h2>
-<p>The base datastore interfaces (<code>DatastoreHasPrimaryKey</code>, <code>DatastoreHasWhere</code>, etc.) provide standard operations. <strong>You are not required to extend them.</strong></p>
-<h3 id="full-standard-interface-database-friendly">Full standard interface (database-friendly)</h3>
-<p>If your storage supports queries, filtering, and standard CRUD, extend the base interfaces:</p>
-<pre><code class="language-php">interface PostDatastore extends Datastore, DatastoreHasPrimaryKey, DatastoreHasWhere, DatastoreHasCounts
-{
-    public function getPublishedPosts(): array;
-}
-
-interface PostDatastoreHandler extends Datastore, DatastoreHasPrimaryKey, DatastoreHasWhere, DatastoreHasCounts
-{
-    // Standard operations
-}
-</code></pre>
-<p><strong>Use when:</strong></p>
-<ul>
-<li>Storage is a database with full query support</li>
-<li>You want standard CRUD operations available</li>
-<li>Consumers benefit from generic query methods like <code>where()</code></li>
-</ul>
-<h2 id="the-decorator-pattern-with-traits">The decorator pattern with traits</h2>
-<p>When your <code>Datastore</code> and <code>DatastoreHandler</code> both extend the same base interfaces, use decorator traits to eliminate boilerplate delegation code.</p>
-<h3 id="without-decorator-traits-manual-delegation">Without decorator traits (manual delegation)</h3>
-<p>Without traits, you'd write delegation methods for every standard operation:</p>
-<pre><code class="language-php">class PostDatastore implements PostDatastoreInterface
-{
-    protected Datastore $datastoreHandler;
-
-    public function __construct(PostDatastoreHandler $datastoreHandler)
-    {
-        $this-&gt;datastoreHandler = $datastoreHandler;
-    }
-
-    // Manual delegation for Datastore methods
-    public function create(array $attributes): Post
-    {
-        return $this-&gt;datastoreHandler-&gt;create($attributes);
-    }
-
-    public function updateCompound(array $ids, array $attributes): void
-    {
-        $this-&gt;datastoreHandler-&gt;updateCompound($ids, $attributes);
-    }
-
-    // Manual delegation for DatastoreHasPrimaryKey methods
-    public function find(int $id): Post
-    {
-        return $this-&gt;datastoreHandler-&gt;find($id);
-    }
-
-    public function findMultiple(array $ids): array
-    {
-        return $this-&gt;datastoreHandler-&gt;findMultiple($ids);
-    }
-
-    public function update(int $id, array $attributes): void
-    {
-        $this-&gt;datastoreHandler-&gt;update($id, $attributes);
-    }
-
-    public function delete(int $id): void
-    {
-        $this-&gt;datastoreHandler-&gt;delete($id);
-    }
-
-    // Manual delegation for DatastoreHasWhere methods
-    public function where(array $conditions, ?int $limit = null, ?int $offset = null, ?string $orderBy = null, string $order = 'ASC'): array
-    {
-        return $this-&gt;datastoreHandler-&gt;where($conditions, $limit, $offset, $orderBy, $order);
-    }
-
-    public function andWhere(array $conditions, ?int $limit = null, ?int $offset = null, ?string $orderBy = null, string $order = 'ASC'): array
-    {
-        return $this-&gt;datastoreHandler-&gt;andWhere($conditions, $limit, $offset, $orderBy, $order);
-    }
-
-    public function orWhere(array $conditions, ?int $limit = null, ?int $offset = null, ?string $orderBy = null, string $order = 'ASC'): array
-    {
-        return $this-&gt;datastoreHandler-&gt;orWhere($conditions, $limit, $offset, $orderBy, $order);
-    }
-
-    public function deleteWhere(array $conditions): void
-    {
-        $this-&gt;datastoreHandler-&gt;deleteWhere($conditions);
-    }
-
-    public function findBy(string $field, $value): Post
-    {
-        return $this-&gt;datastoreHandler-&gt;findBy($field, $value);
-    }
-
-    // Plus count methods, plus custom methods...
-}
-</code></pre>
-<p>That's dozens of lines of boilerplate for a simple datastore.</p>
-<h3 id="with-decorator-traits-automatic-delegation">With decorator traits (automatic delegation)</h3>
-<p>Decorator traits handle all standard delegation automatically:</p>
-<pre><code class="language-php">class PostDatastore implements PostDatastoreInterface
-{
-    use WithDatastoreDecorator;              // Delegates: create, updateCompound
-    use WithDatastorePrimaryKeyDecorator;     // Delegates: find, findMultiple, update, delete
-    use WithDatastoreWhereDecorator;          // Delegates: where, andWhere, orWhere, deleteWhere, findBy
-    use WithDatastoreCountDecorator;          // Delegates: count methods
-
-    protected Datastore $datastoreHandler;
-
-    public function __construct(PostDatastoreHandler $datastoreHandler)
-    {
-        $this-&gt;datastoreHandler = $datastoreHandler;
-    }
-
-    // Only implement custom business methods
-    public function getPublishedPosts(): array
-    {
-        return $this-&gt;datastoreHandler-&gt;where([
-            [
-                'type' =&gt; 'AND',
-                'clauses' =&gt; [
-                    ['column' =&gt; 'publishedDate', 'operator' =&gt; '&lt;=', 'value' =&gt; date('Y-m-d H:i:s')]
-                ]
-            ]
-        ]);
-    }
-
-    public function getByAuthor(int $authorId): array
-    {
-        return $this-&gt;datastoreHandler-&gt;where([
-            [
-                'type' =&gt; 'AND',
-                'clauses' =&gt; [
-                    ['column' =&gt; 'authorId', 'operator' =&gt; '=', 'value' =&gt; $authorId]
-                ]
-            ]
-        ]);
-    }
-}
-</code></pre>
-<p>All standard operations automatically delegate to <code>$this-&gt;datastoreHandler</code>. You only write custom business methods.</p>
-<h3 id="available-decorator-traits">Available decorator traits</h3>
-<table>
-<thead>
-<tr>
-<th>Trait</th>
-<th>Delegates Methods</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>WithDatastoreDecorator</code></td>
-<td><code>create()</code>, <code>updateCompound()</code></td>
-</tr>
-<tr>
-<td><code>WithDatastorePrimaryKeyDecorator</code></td>
-<td><code>find()</code>, <code>findMultiple()</code>, <code>update()</code>, <code>delete()</code></td>
-</tr>
-<tr>
-<td><code>WithDatastoreWhereDecorator</code></td>
-<td><code>where()</code>, <code>andWhere()</code>, <code>orWhere()</code>, <code>deleteWhere()</code>, <code>findBy()</code></td>
-</tr>
-<tr>
-<td><code>WithDatastoreCountDecorator</code></td>
-<td>Count-related methods</td>
-</tr>
-</tbody>
-</table>
-<p>Use the traits that match the interfaces your Datastore extends. If your <code>PostDatastore</code> extends <code>DatastoreHasPrimaryKey</code>, use <code>WithDatastorePrimaryKeyDecorator</code>.</p>
-<h3 id="when-not-to-use-decorator-traits">When NOT to use decorator traits</h3>
-<p><strong>Don't use decorator traits when:</strong></p>
-<ol>
-<li><strong>Your interfaces don't match</strong> - If <code>PostDatastore</code> extends <code>DatastoreHasWhere</code> but <code>PostDatastoreHandler</code> doesn't, you can't delegate</li>
-<li><strong>You want a minimal API</strong> - If you're not extending base interfaces, don't use delegation traits</li>
-<li><strong>You need custom behavior</strong> - If standard operations need special handling, implement them manually</li>
-</ol>
-<pre><code class="language-php">// Example: Minimal API, no delegation
-interface PostDatastore extends Datastore
-{
-    public function getPublishedPosts(): array;
-}
-
-interface PostDatastoreHandler extends Datastore
-{
-    // Minimal
-}
-
-class PostDatastore implements PostDatastoreInterface
-{
-    // NO decorator traits
-
-    public function __construct(
-        private PostDatastoreHandler $datastoreHandler
-    ) {}
-
-    // Implement everything explicitly
-    public function create(array $attributes): Post
-    {
-        return $this-&gt;datastoreHandler-&gt;create($attributes);
-    }
-
-    public function updateCompound(array $ids, array $attributes): void
-    {
-        $this-&gt;datastoreHandler-&gt;updateCompound($ids, $attributes);
-    }
-
-    public function getPublishedPosts(): array
-    {
-        // Custom implementation
-    }
-}
-</code></pre>
-<hr />
-<h2 id="custom-business-methods">Custom business methods</h2>
-<p>Custom methods define domain-specific operations. They use handler primitives to implement business logic.</p>
-<h3 id="pattern-1-simple-filtering">Pattern 1: Simple filtering</h3>
-<pre><code class="language-php">interface PostDatastore extends Datastore, DatastoreHasWhere
-{
-    public function getPublishedPosts(): array;
-    public function getDraftPosts(): array;
-}
-
-class PostDatastore implements PostDatastoreInterface
-{
-    use WithDatastoreDecorator;
-    use WithDatastoreWhereDecorator;
-
-    protected Datastore $datastoreHandler;
-
-    public function __construct(PostDatastoreHandler $datastoreHandler)
-    {
-        $this-&gt;datastoreHandler = $datastoreHandler;
-    }
-
-    public function getPublishedPosts(): array
-    {
-        return $this-&gt;datastoreHandler-&gt;where([
-            [
-                'type' =&gt; 'AND',
-                'clauses' =&gt; [
-                    ['column' =&gt; 'status', 'operator' =&gt; '=', 'value' =&gt; 'published']
-                ]
-            ]
-        ]);
-    }
-
-    public function getDraftPosts(): array
-    {
-        return $this-&gt;datastoreHandler-&gt;where([
-            [
-                'type' =&gt; 'AND',
-                'clauses' =&gt; [
-                    ['column' =&gt; 'status', 'operator' =&gt; '=', 'value' =&gt; 'draft']
-                ]
-            ]
-        ]);
-    }
-}
-</code></pre>
-<h3 id="pattern-2-lookup-by-specific-field">Pattern 2: Lookup by specific field</h3>
-<pre><code class="language-php">interface PostDatastore extends Datastore, DatastoreHasWhere
-{
-    public function getBySlug(string $slug): Post;
-    public function getByAuthor(int $authorId): array;
-}
-
-class PostDatastore implements PostDatastoreInterface
-{
-    use WithDatastoreDecorator;
-    use WithDatastoreWhereDecorator;
-
-    protected Datastore $datastoreHandler;
-
-    public function __construct(PostDatastoreHandler $datastoreHandler)
-    {
-        $this-&gt;datastoreHandler = $datastoreHandler;
-    }
-
-    public function getBySlug(string $slug): Post
-    {
-        return $this-&gt;datastoreHandler-&gt;findBy('slug', $slug);
-    }
-
-    public function getByAuthor(int $authorId): array
-    {
-        return $this-&gt;datastoreHandler-&gt;where([
-            [
-                'type' =&gt; 'AND',
-                'clauses' =&gt; [
-                    ['column' =&gt; 'authorId', 'operator' =&gt; '=', 'value' =&gt; $authorId]
-                ]
-            ]
-        ]);
-    }
-}
-</code></pre>
-<h3 id="pattern-3-complex-queries">Pattern 3: Complex queries</h3>
-<pre><code class="language-php">interface PostDatastore extends Datastore, DatastoreHasWhere
-{
-    public function getRecentPublishedByAuthor(int $authorId, int $limit = 10): array;
-}
-
-class PostDatastore implements PostDatastoreInterface
-{
-    use WithDatastoreDecorator;
-    use WithDatastoreWhereDecorator;
-
-    protected Datastore $datastoreHandler;
-
-    public function __construct(PostDatastoreHandler $datastoreHandler)
-    {
-        $this-&gt;datastoreHandler = $datastoreHandler;
-    }
-
-    public function getRecentPublishedByAuthor(int $authorId, int $limit = 10): array
-    {
-        return $this-&gt;datastoreHandler-&gt;where(
-            conditions: [
-                [
-                    'type' =&gt; 'AND',
-                    'clauses' =&gt; [
-                        ['column' =&gt; 'authorId', 'operator' =&gt; '=', 'value' =&gt; $authorId],
-                        ['column' =&gt; 'status', 'operator' =&gt; '=', 'value' =&gt; 'published']
-                    ]
-                ]
+        return [
+            'Query' =&gt; [
+                'books' =&gt; BooksResolver::class,
+                'book'  =&gt; BookByIdResolver::class,
             ],
-            limit: $limit,
-            orderBy: 'publishedDate',
-            order: 'DESC'
-        );
+        ];
     }
 }
 </code></pre>
-<h3 id="pattern-4-combining-multiple-operations">Pattern 4: Combining multiple operations</h3>
-<pre><code class="language-php">interface PostDatastore extends Datastore, DatastoreHasPrimaryKey, DatastoreHasWhere
+<p>See the <a href="/packages/graphql/type-definitions">Type Definitions</a> package documentation for fuller examples.</p>
+<h2 id="registering-type-definitions-via-an-initializer">Registering Type Definitions via an Initializer</h2>
+<p>Your initializer <strong>implements <code>HasTypeDefinitions</code></strong> and returns the definitions to load. The container instantiates
+them; the <code>GraphQLStrategy</code> reads <code>getSdl()</code> / <code>getResolvers()</code> to build the schema.</p>
+<pre><code class="language-php">&lt;?php
+
+use PHPNomad\GraphQL\Interfaces\HasTypeDefinitions;
+
+final class GraphQLTypesInitializer implements HasTypeDefinitions
 {
-    public function publishPost(int $postId): Post;
-}
-
-class PostDatastore implements PostDatastoreInterface
-{
-    use WithDatastoreDecorator;
-    use WithDatastorePrimaryKeyDecorator;
-    use WithDatastoreWhereDecorator;
-
-    protected Datastore $datastoreHandler;
-
-    public function __construct(PostDatastoreHandler $datastoreHandler)
+    /**
+     * Return the list of TypeDefinitions to register.
+     *
+     * @return array&lt;class-string&lt;TypeDefinition&gt;&gt;
+     */
+    public function getTypeDefinitions(): array
     {
-        $this-&gt;datastoreHandler = $datastoreHandler;
-    }
-
-    public function publishPost(int $postId): Post
-    {
-        $this-&gt;datastoreHandler-&gt;update($postId, [
-            'status' =&gt; 'published',
-            'publishedDate' =&gt; date('Y-m-d H:i:s')
-        ]);
-
-        return $this-&gt;datastoreHandler-&gt;find($postId);
+        return [
+            BookTypeDefinition::class,
+            // AuthorTypeDefinition::class,
+            // ReviewTypeDefinition::class,
+        ];
     }
 }
 </code></pre>
-<hr />
-<h2 id="design-principles-for-core-datastores">Design principles for Core datastores</h2>
-<h3 id="keep-business-logic-in-the-core-implementation">Keep business logic in the Core implementation</h3>
-<p>Custom methods implement business logic by composing handler primitives. The handler doesn't know about &quot;published posts&quot; or &quot;recent posts&quot;—it just provides query capabilities. The Core datastore interprets what &quot;published&quot; means.</p>
-<h3 id="be-intentional-about-your-public-api">Be intentional about your public API</h3>
-<p>Every method you add to <code>PostDatastore</code> is a promise to consumers. If you add <code>where()</code> to your interface, consumers will use it. If you later switch to a REST API that doesn't support generic queries, you'll break consumers.</p>
-<p>Ask yourself:</p>
-<ul>
-<li>Will this storage always support this operation?</li>
-<li>Do I want consumers calling this directly?</li>
-<li>Is this operation stable long-term?</li>
-</ul>
-<p>If unsure, keep your interface minimal and add methods as needed.</p>
-<h3 id="handler-interfaces-should-be-generic">Handler interfaces should be generic</h3>
-<p>The <code>DatastoreHandler</code> interface should contain only operations that <strong>any storage implementation</strong> can reasonably provide. Don't add business-specific methods to the handler—those belong in the <code>Datastore</code> implementation.</p>
-<hr />
-<h2 id="summary">Summary</h2>
-<p>The Core datastore layer defines business-level data operations through interfaces and implementations. The critical distinction is between <code>Datastore</code> (public API for consumers) and <code>DatastoreHandler</code> (contract for storage implementations). Decorator traits eliminate boilerplate delegation when both interfaces extend the same base interfaces. For tighter control or limited storage capabilities, opt out of base interfaces and define only the operations you need. Custom business methods compose handler primitives to implement domain logic. Keep your public API intentional and your handler interfaces generic.</p>
 
     </main>
 </div>
