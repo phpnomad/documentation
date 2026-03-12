@@ -806,6 +806,7 @@ Now that you have built your first datastore, explore these topics to deepen you
 - **[Query Building](../packages/database/query-building)** — Build complex queries with conditions
 - **[Junction Tables](../packages/database/junction-tables)** — Implement many-to-many relationships
 - **[Advanced Patterns](../advanced/advanced-patterns)** — Soft deletes, audit trails, and optimization
+- **[Logger Package](../packages/logger/introduction)** — LoggerStrategy interface for handler logging
 
 ---
 

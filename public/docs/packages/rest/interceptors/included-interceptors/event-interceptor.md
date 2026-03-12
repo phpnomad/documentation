@@ -1,5 +1,7 @@
 # EventInterceptor
 
+> **See also:** [Event Package](/packages/event/introduction) for the core `Event` and `EventStrategy` interfaces.
+
 The `EventInterceptor` is a built-in interceptor in PHPNomad designed for **publishing events** after a controller has
 completed its work. It lets you broadcast domain events in response to API calls, keeping controllers free of
 side-effect logic.
