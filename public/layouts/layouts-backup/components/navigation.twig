@@ -1,0 +1,30 @@
+<nav>
+    {% macro renderItems(items, currentPath) %}
+        {% for item in items %}
+            {% if item.children is defined and item.children|length > 0 %}
+                <details class="nav-section" {% if item.isOpen %}open{% endif %}>
+                    <summary>
+                        {% if item.path is defined %}
+                            <a href="{{ item.path }}" class="{% if currentPath == item.path %}nav-item--active{% endif %}">
+                                {{ item.title }}
+                            </a>
+                        {% else %}
+                            {{ item.title }}
+                        {% endif %}
+                    </summary>
+                    <div class="nav-group">
+                        {{ _self.renderItems(item.children, currentPath) }}
+                    </div>
+                </details>
+            {% else %}
+                <div class="nav-item">
+                    <a href="{{ item.path }}" class="{% if currentPath == item.path %}nav-item--active{% endif %}">
+                        {{ item.title }}
+                    </a>
+                </div>
+            {% endif %}
+        {% endfor %}
+    {% endmacro %}
+
+    {{ _self.renderItems(sidebarItems, currentPath) }}
+</nav>
