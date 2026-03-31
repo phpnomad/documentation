@@ -438,3 +438,4 @@ Business logic belongs in services, not handlers.
 * [Database Handlers Introduction](/packages/database/handlers/introduction) — overview of handler architecture
 * [Query Building](/packages/database/query-building) — building custom queries
 * [Caching and Events](/packages/database/caching-and-events) — customizing cache and event behavior
+* [Logger Package](/packages/logger/introduction) — LoggerStrategy interface for error logging
