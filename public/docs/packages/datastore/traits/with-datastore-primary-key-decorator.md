@@ -201,3 +201,4 @@ This ensures the handler supports primary key lookups.
 * [DatastoreHasPrimaryKey Interface](/packages/datastore/interfaces/datastore-has-primary-key) — the interface this trait implements
 * [WithDatastoreWhereDecorator](/packages/datastore/traits/with-datastore-where-decorator) — adds query-builder methods
 * [Database Handlers](/packages/database/handlers/introduction) — the handler side of the contract
+* [Logger Package](/packages/logger/introduction) — LoggerStrategy interface used in examples above

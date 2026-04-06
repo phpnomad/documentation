@@ -562,6 +562,12 @@ public function save(Model $item): Model {
 
 ---
 
+## Related Documentation
+
+* [Event Package](/packages/event/introduction) — Core event interfaces (`Event`, `EventStrategy`, `CanHandle`)
+* [Event Listeners](/core-concepts/bootstrapping/initializers/event-listeners) — Setting up event listeners in initializers
+* [Event Bindings](/core-concepts/bootstrapping/initializers/event-binding) — Binding platform events to application events
+
 ## What's Next
 
 * [Database Handlers](/packages/database/handlers/introduction) — handlers that use caching and events

@@ -227,3 +227,4 @@ This ensures the handler supports query-builder operations.
 * [DatastoreHasWhere Interface](/packages/datastore/interfaces/datastore-has-where) — the interface this trait implements
 * [WithDatastorePrimaryKeyDecorator](/packages/datastore/traits/with-datastore-primary-key-decorator) — adds `find()` method
 * [Query Building](/packages/database/query-building) — how handlers implement query builders
+* [Logger Package](/packages/logger/introduction) — LoggerStrategy interface used in examples above

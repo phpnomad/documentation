@@ -196,3 +196,4 @@ Most handlers extend this interface with additional capabilities (e.g., `Datasto
 * [Datastore Interface](/packages/datastore/interfaces/datastore) — the interface this trait implements
 * [WithDatastorePrimaryKeyDecorator](/packages/datastore/traits/with-datastore-primary-key-decorator) — adds `find()` method
 * [Core Implementation](/packages/datastore/core-implementation) — when to use traits vs manual implementation
+* [Logger Package](/packages/logger/introduction) — LoggerStrategy interface used in examples above
