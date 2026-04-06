@@ -1,5 +1,10 @@
 # Event Listeners in PHPNomad
 
+> **Related interfaces:**
+> - [HasListeners](/packages/event/interfaces/has-listeners) — Declaring which events to listen for
+> - [CanHandle](/packages/event/interfaces/can-handle) — Creating handler classes
+> - [Event](/packages/event/interfaces/event) — Creating event classes
+
 Event listeners are like friendly observers in your code that wait for specific things to happen, and then spring into
 action when they do. Think of them as helpful assistants who are always ready to respond when something important occurs
 in your application.
@@ -251,3 +256,19 @@ any services it needs.
 
 Think of event listeners as specialized workers in your application - each one has access to exactly the tools they
 need (through dependency injection) and knows exactly what to do when certain events occur.
+
+---
+
+## Related Documentation
+
+### Event Package Interfaces
+- [HasListeners](/packages/event/interfaces/has-listeners) — Detailed interface documentation for declaring listeners
+- [CanHandle](/packages/event/interfaces/can-handle) — Creating handler classes with dependency injection
+- [Event](/packages/event/interfaces/event) — Creating event classes
+- [EventStrategy](/packages/event/interfaces/event-strategy) — Broadcasting events programmatically
+
+### Related Guides
+- [Event Bindings](event-binding) — Connecting platform events to your application
+- [Event Package Overview](/packages/event/introduction) — Full event system documentation
+- [Best Practices](/packages/event/patterns/best-practices) — Handler patterns, testing strategies, anti-patterns
+- [Logger Package](/packages/logger/introduction) — LoggerStrategy interface used in handler examples
