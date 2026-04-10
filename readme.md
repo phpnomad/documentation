@@ -1,97 +1,41 @@
-# PHPNomad Documentation System
+# phpnomad/documentation
 
-This is the documentation system for PHPNomad. It converts Markdown documentation files into a static website, providing both a development environment for writing documentation and a static site generator for production deployment.
+Source for the PHPNomad documentation site at [phpnomad.com](https://phpnomad.com). The docs site is itself a PHPNomad application, so the same framework the documentation describes is the framework rendering it. Markdown files in `public/docs/` are rendered through a Twig-backed MVC pipeline, served live during development or compiled to a static site for deployment.
 
-## Setup
+## What's in the repo
 
-1. Install dependencies:
+- `index.php` is the dev server entry point. It boots the application in `dev()` mode and broadcasts a `RequestInitiated` event that flows through the router and controllers.
+- `generate.php` is the static compile CLI. It boots in `cli()` mode and broadcasts `StaticCompileInitiated` and `StaticCompileRequested` events that walk the docs tree and write HTML to disk.
+- `src/` holds the MVC source: the `Application` class, initializers, events, the `MarkdownController`, and the services that render Markdown and build navigation.
+- `public/` holds the Twig templates (`doc.twig`, `404.twig`, `layouts/`, `components/`), the site assets, and the `docs/` tree that holds the actual documentation content.
+
+## Running it locally
+
+Install dependencies and start the dev server:
+
 ```bash
 composer install
-```
-
-2. Create your configuration file at `configs/app.json`:
-```json
-{
-    "templateRoot": "./templates",
-    "docsRoot": "./docs"
-}
-```
-
-3. Ensure your documentation directory structure is in place:
-```
-.
-├── configs/
-│   └── app.json
-├── docs/          # Your PHPNomad documentation in Markdown
-├── templates/     # Documentation site templates
-│   └── assets/   # CSS, JS, and other assets
-└── dist/         # Generated static documentation (created automatically)
-```
-
-## Writing Documentation
-
-Place your Markdown documentation files in the `docs` directory. The file structure determines the URL structure of your documentation:
-
-```
-docs/
-├── index.md                    # Landing page at /
-├── getting-started.md         # /getting-started
-└── core/
-    ├── index.md              # /core
-    ├── container.md         # /core/container
-    └── events.md           # /core/events
-```
-
-## Development Server
-
-While writing documentation, you can run a local development server that provides live updates:
-
-```bash
 php -S localhost:8080 index.php
 ```
 
-This will serve your documentation at `http://localhost:8080`. Changes to your Markdown files will be reflected immediately upon page refresh.
-
-## Generating Static Documentation
-
-To generate a static version of the documentation for deployment:
+Changes to Markdown files are reflected on the next request. To compile the static site for deployment:
 
 ```bash
 php generate.php
 ```
 
-This process will:
-1. Create or clean the `dist` directory
-2. Convert all Markdown documentation to HTML
-3. Copy the template assets to `dist/public/assets`
-4. Generate the documentation navigation structure
+## Configuration
 
-## Testing Static Generation
+Site configuration lives in `configs/app.json`. Two keys matter: `docsRoot` (the directory holding your Markdown files, defaults to `public/docs`) and `templateRoot` (the directory holding the Twig templates, defaults to `public`).
 
-After generating the static documentation, you can verify it:
+## Writing docs
 
-```bash
-cd dist
-php -S localhost:8081
-```
+The directory layout under `public/docs/` mirrors the URL structure. Subdirectories become path segments, and an `index.md` inside a directory becomes that directory's landing page. Links between documents work like regular Markdown links.
 
-Visit `http://localhost:8081` to review the generated static documentation.
+## Contributing
 
-## Template Structure
+This repository is the canonical place to propose changes to the PHPNomad documentation. The rendered output lives at [phpnomad.com](https://phpnomad.com).
 
-The documentation system requires two main templates in your `templates` directory:
+## License
 
-- `doc.twig` - Template for documentation pages
-- `404.twig` - Documentation not found page
-
-## Assets
-
-Place your documentation site's assets (CSS, JavaScript, images) in `templates/assets`. These will be automatically copied to `dist/public/assets` during static site generation.
-
-## Features
-
-- Markdown to HTML conversion with GitHub Flavored Markdown support
-- Automatic documentation navigation generation based on file structure
-- Development server with live updates
-- Static site generation for production deployment
-- Asset management
+MIT. See [LICENSE](LICENSE).
