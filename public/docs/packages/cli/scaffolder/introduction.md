@@ -14,9 +14,11 @@ llm_summary: >
   prerequisites must be met (validated against the project index), and what registrations to perform
   in existing initializer files. Auto-registration uses nikic/php-parser's format-preserving printer
   to mutate PHP ASTs, appending entries to return arrays, adding use statements, and implementing
-  interfaces. The engine supports multi-file recipes, per-file var overrides, and auto-computed
-  variable transforms (nameLower, nameSnake). Pre-flight validation checks for missing vars,
-  existing output files, missing initializers, and unresolved bindings before any files are written.
+  interfaces. The engine supports multi-file recipes, per-file var overrides, auto-computed
+  variable transforms (nameLower, nameSnake), and recipe stacking where composite recipes reference
+  other recipes to scaffold entire features from a single command. Pre-flight validation checks for
+  missing vars, existing output files, missing initializers, and unresolved bindings before any
+  files are written.
 questions_answered:
   - What is the PHPNomad scaffolder?
   - How does code generation work in PHPNomad?
@@ -27,6 +29,8 @@ questions_answered:
   - Can a single recipe create multiple files?
   - What happens during pre-flight validation?
   - How are variables resolved in templates?
+  - What is recipe stacking?
+  - How do composite recipes work?
 audience:
   - developers
   - backend engineers
@@ -42,6 +46,7 @@ llm_tags:
   - ast-mutation
   - template-rendering
   - auto-registration
+  - recipe-stacking
 keywords:
   - phpnomad scaffolder
   - recipe spec
@@ -50,6 +55,8 @@ keywords:
   - initializer mutator
   - php-parser
   - template rendering
+  - recipe stacking
+  - composite recipes
 related:
   - ../introduction
   - ../indexer/introduction
@@ -76,6 +83,7 @@ Everything flows from a single primitive: the **recipe spec**. A recipe is a JSO
 - **Pre-flight validation** checks requirements against the project index before any files are generated.
 - **Per-file var overrides** let the same template produce different output in multi-file recipes.
 - **Auto-computed var transforms** derive `nameLower` and `nameSnake` from user-supplied variables automatically.
+- **Recipe stacking** lets composite recipes reference other recipes, scaffolding entire features from a single command.
 
 ---
 
@@ -222,6 +230,22 @@ Per-file var overrides make this possible. The `files[].vars` object lets you se
 
 ---
 
+## Recipe stacking
+
+Beyond multi-file recipes, the scaffolder supports recipe stacking. A composite recipe does not define its own files and registrations. Instead, it declares a `recipes` array that references other recipes by name. Each child recipe executes in sequence with variables flowing from the parent scope.
+
+This is the mechanism behind the `database-datastore` recipe, which stacks five child recipes (model, model-adapter, table, datastore, database-handler) to produce seven files and two initializer registrations from a single command:
+
+```bash
+phpnomad make --from=database-datastore '{"name":"Payout","tableName":"payouts","initializer":"App\\AppInit"}'
+```
+
+Recipe stacking keeps individual recipes small and reusable. You can run `phpnomad make --from=model` on its own, or let `database-datastore` invoke it as part of a larger operation. The child recipes do not know or care whether they are running standalone or as part of a stack.
+
+The `rootNamespace` variable is auto-computed from the project's PSR-4 config and injected into child recipes so they can construct FQCNs for classes created by sibling recipes. For the full specification, including how variables are inherited and overridden, see [Recipe Spec](recipe-spec#recipe-stacking).
+
+---
+
 ## Usage
 
 The scaffolder is invoked through the `make` command. You specify a recipe name (or path) and pass variables as a JSON object:
@@ -257,6 +281,6 @@ Done: 1 file(s) created, 1 registration(s) performed.
 ## What's next
 
 - **[Recipe Spec](recipe-spec)** covers the full JSON schema for recipe files, including all fields, types, and validation rules.
-- **[Built-in Recipes](built-in-recipes)** documents the bundled recipes (listener, event, command, controller) with examples for each.
+- **[Built-in Recipes](built-in-recipes)** documents all 16 bundled recipes, from single-file recipes like listener and facade to composite recipes like database-datastore.
 - **[Commands](../commands/introduction)** covers the `make` command and other CLI commands.
 - **[Indexer](../indexer/introduction)** explains how the project index is built and how it feeds pre-flight validation.

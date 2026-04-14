@@ -10,9 +10,10 @@ last_reviewed: 2026-04-13
 summary: Complete reference for the JSON recipe format used by the PHPNomad CLI scaffolder.
 llm_summary: >
   Full specification for PHPNomad scaffolder recipe JSON files. Covers all top-level fields (name, description, vars,
-  requires, files, registrations), registration types (list vs map), variable resolution order, auto-computed case
-  transforms, per-file var overrides, and complete examples including the listener recipe and a multi-file datastore
-  feature recipe. Also explains how to create and reference custom recipes.
+  requires, files, registrations, recipes), registration types (list vs map), variable resolution order, auto-computed
+  case transforms and the Short FQCN transform, per-file var overrides, recipe stacking via the recipes field, the
+  auto-computed rootNamespace variable, and complete examples including the listener recipe, a multi-file datastore
+  feature recipe, and the database-datastore composite recipe. Also explains how to create and reference custom recipes.
 questions_answered:
   - What is the JSON schema for a scaffolder recipe?
   - What fields does a recipe file support?
@@ -20,12 +21,17 @@ questions_answered:
   - What are the registration types and how do they differ?
   - How does variable resolution order work?
   - What auto-computed transforms are available for variables?
+  - What is the Short var transform?
   - How do per-file var overrides work?
   - How do I create a custom recipe?
   - Where do I put custom recipe JSON files?
   - How do I reference a custom recipe from the CLI?
   - What does a complete recipe look like?
   - How do recipe requirements work?
+  - What is recipe stacking?
+  - How does the recipes field work?
+  - What is the rootNamespace variable?
+  - How do composite recipes pass variables to child recipes?
 audience:
   - developers
   - backend engineers
@@ -40,6 +46,9 @@ llm_tags:
   - scaffolder-recipe-spec
   - json-schema
   - code-generation-config
+  - recipe-stacking
+  - rootNamespace
+  - short-transform
 keywords:
   - phpnomad recipe
   - scaffolder recipe
@@ -47,6 +56,10 @@ keywords:
   - scaffolder spec
   - recipe format
   - recipe schema
+  - recipe stacking
+  - composite recipe
+  - rootNamespace
+  - Short transform
 related:
   - introduction
   - built-in-recipes
@@ -103,11 +116,19 @@ Here is the complete shape of a recipe JSON file, with every field shown:
       "key": "{{event}}",
       "value": "{{namespace}}\\{{name}}"
     }
+  ],
+  "recipes": [
+    {
+      "recipe": "recipeName",
+      "vars": {
+        "childVar": "{{parentVar}}"
+      }
+    }
   ]
 }
 ```
 
-Every field except `name` is optional. A recipe with just `name` and `files` is perfectly valid. The sections below cover each field in detail.
+Every field except `name` is optional. A recipe with just `name` and `files` is perfectly valid. A recipe can define `files` and `registrations`, or `recipes` (for stacking), or both. The sections below cover each field in detail.
 
 ---
 
@@ -257,6 +278,38 @@ The scaffolder does several things with each registration:
 
 If the method exists but its return statement is not a simple array literal, the scaffolder reports an error and provides the manual entry for you to add yourself.
 
+### recipes
+
+An array of child recipe references for recipe stacking. Each entry names a recipe to execute and provides variable mappings from the parent scope into the child scope.
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `recipe` | yes | Name of the child recipe (built-in name or file path) |
+| `vars` | no | Variable overrides to pass to the child recipe |
+
+```json
+{
+  "recipes": [
+    {
+      "recipe": "model",
+      "vars": {}
+    },
+    {
+      "recipe": "model-adapter",
+      "vars": {
+        "model": "{{rootNamespace}}\\Models\\{{name}}"
+      }
+    }
+  ]
+}
+```
+
+When the scaffolder encounters a `recipes` array, it processes each child entry in order. The parent's user-provided variables flow into each child automatically. The `vars` object on each entry can override or add variables specific to that child. Child recipes run through the full pipeline independently, including preflight validation, file generation, and registration.
+
+A recipe can have both `files`/`registrations` and `recipes`. The recipe's own files are generated first, then the child recipes execute.
+
+See [Recipe Stacking](#recipe-stacking) for the full explanation, including the `rootNamespace` auto-computed variable.
+
 ---
 
 ## Registration Types
@@ -336,7 +389,27 @@ For every user-provided variable, the scaffolder automatically generates case-tr
 
 These transforms apply to all user-provided variables, not just `name`. If you define a variable called `event` with the value `UserCreated`, you also get `{{eventLower}}` (`userCreated`) and `{{eventSnake}}` (`user_created`).
 
+#### The Short transform
+
+For variables that contain a fully qualified class name (FQCN), the scaffolder provides a `Short` transform that extracts the short class name. If you provide `model=App\\Models\\Payout`, then `{{modelShort}}` resolves to `Payout`.
+
+This is particularly useful in templates that need both a `use` statement (which uses the full FQCN) and a type reference (which uses just the short name). For example, a template might contain:
+
+```php
+use {{model}};
+
+class {{name}} {
+    public function toModel(): {{modelShort}} { ... }
+}
+```
+
+The `Short` transform applies to any variable whose value contains a backslash, indicating it is a FQCN.
+
+### Auto-Computed Namespace Variables
+
 The `{{namespace}}` variable is always available and is computed per-file based on where the file will be written. For registrations, the namespace is taken from the first file in the recipe.
+
+The `{{rootNamespace}}` variable is auto-computed from the project's PSR-4 autoload configuration in `composer.json`. For a project with `"App\\": "lib/"` in its autoload config, `rootNamespace` resolves to `App`. This variable is especially important in recipe stacking, where child recipes need to construct FQCNs for classes created by sibling recipes. See [Recipe Stacking](#recipe-stacking) for details.
 
 ### Recursive Resolution
 
@@ -597,6 +670,74 @@ If you need a template that does not exist yet, you will need to add it to the t
 
 ---
 
+## Recipe Stacking
+
+Recipe stacking lets a parent recipe delegate to other recipes, composing larger scaffolding operations from smaller, reusable building blocks. Instead of duplicating file and registration definitions, a composite recipe references existing recipes by name and passes variables into them.
+
+### How it works
+
+A recipe declares a `recipes` array. Each entry has a `recipe` field (the child recipe name) and an optional `vars` object (variable overrides for that child). When the scaffolder encounters this array:
+
+1. Each child recipe is loaded by name using the same resolution rules as `--from` (built-in lookup or file path).
+2. The parent's user-provided variables are merged with the child entry's `vars` overrides. The overrides take precedence.
+3. The `rootNamespace` variable is injected automatically so child recipes can construct FQCNs for classes created by sibling recipes.
+4. The child recipe runs through the full engine pipeline: preflight validation, variable resolution, template rendering, file writing, and auto-registration.
+5. The scaffolder moves to the next child entry.
+
+Because each child recipe runs independently, all the normal behaviors apply. Preflight validation catches conflicts. Duplicate detection prevents double-registration. The format-preserving printer keeps initializer files clean.
+
+### Variable flow
+
+Variables flow from parent to child in two ways:
+
+- **Inherited variables.** All variables provided by the user to the parent recipe are available to every child recipe automatically. If the user passes `name=Payout`, every child recipe receives `name=Payout`.
+- **Override variables.** The `vars` object on a child entry can override inherited variables or add new ones. These overrides support `{{var}}` placeholders that are resolved against the parent's variable scope.
+
+This means a child recipe like `database-handler` can receive computed values such as `"model": "{{rootNamespace}}\\Models\\{{name}}"`, which resolves to the FQCN of the model class created by a sibling `model` recipe earlier in the sequence.
+
+### Complete example: database-datastore
+
+The `database-datastore` recipe is the canonical example of recipe stacking. It composes five child recipes to create a full database-backed datastore from a single command.
+
+```json
+{
+  "name": "database-datastore",
+  "description": "Creates a full database-backed datastore with model, adapter, table, and handlers",
+  "vars": {
+    "name": { "type": "string", "description": "Feature name in PascalCase (e.g. Payout)" },
+    "tableName": { "type": "string", "description": "Database table name (e.g. payouts)" },
+    "initializer": { "type": "string", "description": "FQCN of the initializer to register in" }
+  },
+  "recipes": [
+    { "recipe": "model", "vars": {} },
+    { "recipe": "model-adapter", "vars": { "model": "{{rootNamespace}}\\Models\\{{name}}" } },
+    { "recipe": "table", "vars": {} },
+    { "recipe": "datastore", "vars": {} },
+    {
+      "recipe": "database-handler",
+      "vars": {
+        "handlerInterface": "{{rootNamespace}}\\Datastores\\{{name}}\\{{name}}DatastoreHandler",
+        "model": "{{rootNamespace}}\\Models\\{{name}}",
+        "modelAdapter": "{{rootNamespace}}\\Adapters\\{{name}}Adapter",
+        "table": "{{rootNamespace}}\\Tables\\{{name}}Table"
+      }
+    }
+  ]
+}
+```
+
+Running this with `name=Payout`, `tableName=payouts`, and `initializer=App\\AppInit` executes the following sequence:
+
+1. **model** creates `lib/Models/Payout.php`.
+2. **model-adapter** creates `lib/Adapters/PayoutAdapter.php`, receiving `model=App\Models\Payout` from the override.
+3. **table** creates `lib/Tables/PayoutsTable.php`, receiving `tableName=payouts` from the inherited variables.
+4. **datastore** creates three files under `lib/Datastores/Payout/` and registers the datastore binding.
+5. **database-handler** creates `lib/Datastores/Payout/PayoutDatabaseHandler.php` and registers the handler binding, receiving FQCNs for all sibling classes through its override variables.
+
+The result is seven files and two initializer registrations from a single command.
+
+---
+
 ## Field Reference Summary
 
 | Field | Type | Required | Description |
@@ -620,3 +761,6 @@ If you need a template that does not exist yet, you will need to add it to the t
 | `registrations[].type` | string | yes | `"list"` or `"map"` |
 | `registrations[].key` | string | no | Array key for map registrations |
 | `registrations[].value` | string | no | Value to register |
+| `recipes` | array | no | Child recipes for recipe stacking |
+| `recipes[].recipe` | string | yes | Name of the child recipe (built-in or file path) |
+| `recipes[].vars` | object | no | Variable overrides to pass to the child recipe |

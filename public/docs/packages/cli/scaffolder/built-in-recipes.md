@@ -7,21 +7,32 @@ status: active
 language: en
 owner: docs-team
 last_reviewed: 2026-04-13
-summary: Reference for the four built-in scaffolder recipes, including generated output, required variables, and auto-registration behavior.
+summary: Reference for all built-in scaffolder recipes, including generated output, required variables, auto-registration behavior, and recipe stacking.
 llm_summary: >
-  Documents the four built-in recipes bundled with the PHPNomad CLI scaffolder: listener, event,
-  command, and controller. Each recipe section covers what the recipe creates, what variables it
-  requires, the full generated file output from its .php.tpl template, what auto-registration it
-  performs in initializer files (including the Has* interface, method name, and registration type),
-  and a complete command example. Also covers the three auto-registration scenarios: appending to
-  an existing method, creating the method from scratch (with interface and use statement), and
-  duplicate detection that prevents double-registration.
+  Documents all 16 built-in recipes bundled with the PHPNomad CLI scaffolder: listener, event,
+  command, controller, facade, task, task-handler, mutation, table, graphql-type, initializer,
+  model, model-adapter, datastore, database-handler, and database-datastore. Each recipe section
+  covers what the recipe creates, what variables it requires, what auto-registration it performs
+  in initializer files (including the Has* interface, method name, and registration type), and a
+  complete command example. Also covers recipe stacking, where composite recipes reference other
+  recipes to scaffold entire features from a single command. Includes the three auto-registration
+  scenarios: appending to an existing method, creating the method from scratch (with interface and
+  use statement), and duplicate detection that prevents double-registration.
 questions_answered:
   - What built-in recipes does the PHPNomad scaffolder include?
   - How do I scaffold a listener with the PHPNomad CLI?
   - How do I scaffold an event with the PHPNomad CLI?
   - How do I scaffold a CLI command with the PHPNomad CLI?
   - How do I scaffold a REST controller with the PHPNomad CLI?
+  - How do I scaffold a facade with the PHPNomad CLI?
+  - How do I scaffold a task and task handler with the PHPNomad CLI?
+  - How do I scaffold a mutation handler with the PHPNomad CLI?
+  - How do I scaffold a database table with the PHPNomad CLI?
+  - How do I scaffold a GraphQL type with the PHPNomad CLI?
+  - How do I scaffold a datastore with the PHPNomad CLI?
+  - How do I scaffold a full database-backed datastore with the PHPNomad CLI?
+  - What is recipe stacking?
+  - How do composite recipes work?
   - What variables does each built-in recipe require?
   - What PHP code does each recipe generate?
   - How does auto-registration modify my initializer file?
@@ -37,12 +48,19 @@ tags:
   - code-generation
   - recipes
   - reference
+  - recipe-stacking
 llm_tags:
   - scaffolder-recipes
   - listener-recipe
   - event-recipe
   - command-recipe
   - controller-recipe
+  - facade-recipe
+  - task-recipe
+  - mutation-recipe
+  - datastore-recipe
+  - database-datastore-recipe
+  - recipe-stacking
   - auto-registration
 keywords:
   - phpnomad make
@@ -51,10 +69,22 @@ keywords:
   - event scaffolding
   - command scaffolding
   - controller scaffolding
+  - facade scaffolding
+  - task scaffolding
+  - mutation scaffolding
+  - datastore scaffolding
+  - database-datastore scaffolding
+  - recipe stacking
+  - composite recipes
   - auto-registration
   - HasListeners
   - HasCommands
   - HasControllers
+  - HasFacades
+  - HasTaskHandlers
+  - HasMutations
+  - HasTypeDefinitions
+  - HasClassDefinitions
 related:
   - introduction
   - recipe-spec
@@ -67,9 +97,15 @@ noindex: false
 
 # Built-in Recipes
 
-The PHPNomad CLI ships with four built-in recipes that cover the most common scaffolding tasks: event listeners, events, CLI commands, and REST controllers. Each recipe generates a PHP file from a template and, where applicable, auto-registers the new class in an initializer.
+The PHPNomad CLI ships with 16 built-in recipes covering common scaffolding tasks. These range from single-file recipes like listeners and facades, to multi-file recipes like datastores, to composite recipes like `database-datastore` that stack multiple recipes together to scaffold entire features from one command.
 
 Built-in recipes are referenced by name. When you pass `--from=listener`, the scaffolder looks for `listener.json` in its bundled `Recipes/` directory. You do not need a file path for these.
+
+The recipes are organized into three categories:
+
+- **Single-artifact recipes** create one PHP file each: listener, event, command, controller, facade, task, task-handler, mutation, table, graphql-type, initializer, model, model-adapter.
+- **Multi-file recipes** create several related files: datastore, database-handler.
+- **Composite recipes** stack other recipes together: database-datastore.
 
 ---
 
@@ -362,6 +398,482 @@ Recipe: controller
 
 Done: 1 file(s) created, 1 registration(s) performed.
 ```
+
+---
+
+## facade
+
+Creates a facade class that extends `PHPNomad\Facade\Abstracts\Facade` and registers it in an initializer's `getFacades()` method. Facades provide a static interface to services resolved from the container.
+
+### Required variables
+
+| Variable | Type | Description |
+|----------|------|-------------|
+| `name` | string | Facade class name (e.g. `PaymentFacade`) |
+| `interface` | string | FQCN of the interface to proxy |
+| `initializer` | string | FQCN of the initializer to register in |
+
+### Command
+
+```bash
+phpnomad make --from=facade '{"name":"PaymentFacade","interface":"App\\Services\\PaymentService","initializer":"App\\AppInit"}'
+```
+
+### Generated file
+
+Output path: `lib/Facades/PaymentFacade.php`
+
+```php
+<?php
+
+namespace App\Facades;
+
+use PHPNomad\Facade\Abstracts\Facade;
+use App\Services\PaymentService;
+
+class PaymentFacade extends Facade
+{
+    protected static function getAbstraction(): string
+    {
+        return PaymentService::class;
+    }
+}
+```
+
+The `{{interface}}` variable produces a use statement and is referenced by its short name in the `getAbstraction()` method.
+
+### Registration
+
+The scaffolder opens the initializer class and adds a list entry to `getFacades()`:
+
+```php
+PaymentFacade::class
+```
+
+The registration type is `list`. The registration targets the `HasFacades` interface. If the initializer does not yet implement `HasFacades`, the scaffolder adds it automatically.
+
+---
+
+## task
+
+Creates a task class implementing `Task` with `getId()`, `toPayload()`, and `fromPayload()` methods. Tasks are data objects dispatched through the task system. They do not require registration.
+
+### Required variables
+
+| Variable | Type | Description |
+|----------|------|-------------|
+| `name` | string | Task class name (e.g. `SendEmailTask`) |
+| `taskId` | string | Unique task identifier (e.g. `send.email`) |
+
+### Command
+
+```bash
+phpnomad make --from=task '{"name":"SendEmailTask","taskId":"send.email"}'
+```
+
+### Registration
+
+None. Tasks are referenced by class name when dispatched and when registering their handlers.
+
+---
+
+## task-handler
+
+Creates a handler class implementing `CanHandleTask` and registers it in an initializer's `getTaskHandlers()` method.
+
+### Required variables
+
+| Variable | Type | Description |
+|----------|------|-------------|
+| `name` | string | Handler class name (e.g. `HandleSendEmail`) |
+| `task` | string | FQCN of the task class to handle |
+| `initializer` | string | FQCN of the initializer to register in |
+
+### Command
+
+```bash
+phpnomad make --from=task-handler '{"name":"HandleSendEmail","task":"App\\Tasks\\SendEmailTask","initializer":"App\\AppInit"}'
+```
+
+### Registration
+
+The scaffolder opens the initializer class and adds a map entry to `getTaskHandlers()`:
+
+```php
+SendEmailTask::class => HandleSendEmail::class
+```
+
+The registration type is `map`, with the task class as the key and the handler class as the value. The registration targets the `HasTaskHandlers` interface. If the initializer does not yet implement `HasTaskHandlers`, the scaffolder adds it automatically.
+
+---
+
+## mutation
+
+Creates a mutation handler class that uses the `CanMutateFromAdapter` trait and registers it in an initializer's `getMutations()` method. Mutations handle data transformations identified by a plain string action key rather than a class reference.
+
+### Required variables
+
+| Variable | Type | Description |
+|----------|------|-------------|
+| `name` | string | Mutation class name (e.g. `CreateUserMutation`) |
+| `action` | string | Action string key (e.g. `create_user`) |
+| `initializer` | string | FQCN of the initializer to register in |
+
+### Command
+
+```bash
+phpnomad make --from=mutation '{"name":"CreateUserMutation","action":"create_user","initializer":"App\\AppInit"}'
+```
+
+### Registration
+
+The scaffolder opens the initializer class and adds a map entry to `getMutations()`:
+
+```php
+'create_user' => CreateUserMutation::class
+```
+
+The registration type is `map`, but the key is a plain string (the action) rather than a `::class` reference. The registration targets the `HasMutations` interface. If the initializer does not yet implement `HasMutations`, the scaffolder adds it automatically.
+
+---
+
+## table
+
+Creates a table class extending `Table` with `getUnprefixedName()` and `getColumns()` methods. Tables define the schema for database-backed datastores. They do not require registration.
+
+### Required variables
+
+| Variable | Type | Description |
+|----------|------|-------------|
+| `name` | string | Table class name (e.g. `PayoutsTable`) |
+| `tableName` | string | Database table name (e.g. `payouts`) |
+
+### Command
+
+```bash
+phpnomad make --from=table '{"name":"PayoutsTable","tableName":"payouts"}'
+```
+
+### Registration
+
+None. Table classes are referenced directly by database handlers that use them.
+
+---
+
+## graphql-type
+
+Creates a GraphQL type definition class implementing `TypeDefinition` with `getSdl()` and `getResolvers()` methods, then registers it in an initializer's `getTypeDefinitions()` method.
+
+### Required variables
+
+| Variable | Type | Description |
+|----------|------|-------------|
+| `name` | string | Type definition class name (e.g. `UserType`) |
+| `typeName` | string | GraphQL type name as it appears in the schema (e.g. `User`) |
+| `initializer` | string | FQCN of the initializer to register in |
+
+### Command
+
+```bash
+phpnomad make --from=graphql-type '{"name":"UserType","typeName":"User","initializer":"App\\AppInit"}'
+```
+
+### Registration
+
+The scaffolder opens the initializer class and adds a list entry to `getTypeDefinitions()`:
+
+```php
+UserType::class
+```
+
+The registration type is `list`. The registration targets the `HasTypeDefinitions` interface. If the initializer does not yet implement `HasTypeDefinitions`, the scaffolder adds it automatically.
+
+---
+
+## initializer
+
+Creates an initializer class that uses `HasClassDefinitions` and `CanSetContainer`. Initializers are the central wiring point for PHPNomad applications. This recipe creates the class itself. It does not register anything, because initializers are typically referenced from the application bootstrap, not from other initializers.
+
+### Required variables
+
+| Variable | Type | Description |
+|----------|------|-------------|
+| `name` | string | Initializer class name (e.g. `AppInit`) |
+
+### Command
+
+```bash
+phpnomad make --from=initializer '{"name":"AppInit"}'
+```
+
+### Registration
+
+None. Initializers are loaded by the application bootstrap, not registered in other initializers.
+
+---
+
+## model
+
+Creates a data model class that uses the `HasSingleIntIdentity` trait. Models are plain data objects that represent a single record from a datastore. They do not require registration.
+
+### Required variables
+
+| Variable | Type | Description |
+|----------|------|-------------|
+| `name` | string | Model class name (e.g. `Payout`) |
+
+### Command
+
+```bash
+phpnomad make --from=model '{"name":"Payout"}'
+```
+
+### Registration
+
+None. Models are referenced by model adapters and datastores that work with them.
+
+---
+
+## model-adapter
+
+Creates a model adapter class with `toModel()` and `toArray()` methods for converting between raw data and model objects. Model adapters do not require registration.
+
+### Required variables
+
+| Variable | Type | Description |
+|----------|------|-------------|
+| `name` | string | Adapter class name (e.g. `PayoutAdapter`) |
+| `model` | string | FQCN of the model class to adapt |
+
+### Command
+
+```bash
+phpnomad make --from=model-adapter '{"name":"PayoutAdapter","model":"App\\Models\\Payout"}'
+```
+
+### Registration
+
+None. Model adapters are referenced by database handlers and other components that need to convert data.
+
+---
+
+## datastore
+
+Creates three files: a datastore interface, a handler interface, and an implementation class with decorator traits. The implementation is registered in an initializer's `getClassDefinitions()` method, binding the datastore interface to its concrete implementation.
+
+### Required variables
+
+| Variable | Type | Description |
+|----------|------|-------------|
+| `name` | string | Datastore name in PascalCase (e.g. `Payout`) |
+| `initializer` | string | FQCN of the initializer to register in |
+
+### Command
+
+```bash
+phpnomad make --from=datastore '{"name":"Payout","initializer":"App\\AppInit"}'
+```
+
+### Generated files
+
+The recipe creates three files:
+
+| File | Description |
+|------|-------------|
+| `lib/Datastores/Payout/PayoutDatastore.php` | Datastore interface |
+| `lib/Datastores/Payout/PayoutDatastoreHandler.php` | Handler interface |
+| `lib/Datastores/Payout/PayoutDatastoreImpl.php` | Implementation with decorator traits |
+
+```php
+<?php
+
+namespace App\Datastores\Payout;
+
+interface PayoutDatastore
+{
+    // TODO: Define datastore methods
+}
+```
+
+```php
+<?php
+
+namespace App\Datastores\Payout;
+
+interface PayoutDatastoreHandler
+{
+    // TODO: Define handler methods
+}
+```
+
+```php
+<?php
+
+namespace App\Datastores\Payout;
+
+use PHPNomad\Datastore\Traits\CanDecorate;
+use PHPNomad\Datastore\Traits\CanFilter;
+
+class PayoutDatastoreImpl implements PayoutDatastore
+{
+    use CanDecorate;
+    use CanFilter;
+
+    public function __construct(
+        protected PayoutDatastoreHandler $handler
+    ) {
+    }
+
+    // TODO: Implement datastore methods
+}
+```
+
+### Registration
+
+The scaffolder opens the initializer class and adds a map entry to `getClassDefinitions()`:
+
+```php
+PayoutDatastore::class => PayoutDatastoreImpl::class
+```
+
+The registration type is `map`. The registration targets the `HasClassDefinitions` interface (`PHPNomad\Di\Interfaces\HasClassDefinitions`). If the initializer does not yet implement `HasClassDefinitions`, the scaffolder adds it automatically.
+
+---
+
+## database-handler
+
+Creates a database-specific handler class that extends `IdentifiableDatabaseDatastoreHandler` and registers it in an initializer's `getClassDefinitions()` method. This recipe is typically used alongside the `datastore` recipe to provide the database implementation for a datastore's handler interface.
+
+### Required variables
+
+| Variable | Type | Description |
+|----------|------|-------------|
+| `name` | string | Handler class name (e.g. `PayoutDatabaseHandler`) |
+| `handlerInterface` | string | FQCN of the handler interface to implement |
+| `model` | string | FQCN of the model class |
+| `modelAdapter` | string | FQCN of the model adapter class |
+| `table` | string | FQCN of the table class |
+| `initializer` | string | FQCN of the initializer to register in |
+
+### Command
+
+```bash
+phpnomad make --from=database-handler '{"name":"PayoutDatabaseHandler","handlerInterface":"App\\Datastores\\Payout\\PayoutDatastoreHandler","model":"App\\Models\\Payout","modelAdapter":"App\\Adapters\\PayoutAdapter","table":"App\\Tables\\PayoutsTable","initializer":"App\\AppInit"}'
+```
+
+### Registration
+
+The scaffolder opens the initializer class and adds a map entry to `getClassDefinitions()`:
+
+```php
+PayoutDatastoreHandler::class => PayoutDatabaseHandler::class
+```
+
+The registration type is `map`. The registration targets the `HasClassDefinitions` interface. If the initializer does not yet implement `HasClassDefinitions`, the scaffolder adds it automatically.
+
+---
+
+## database-datastore (composite)
+
+This is a composite recipe that uses recipe stacking to scaffold an entire database-backed datastore from a single command. It stacks five recipes together: `model`, `model-adapter`, `table`, `datastore`, and `database-handler`. The result is seven files covering the full stack from model to database handler.
+
+### Required variables
+
+| Variable | Type | Description |
+|----------|------|-------------|
+| `name` | string | Feature name in PascalCase (e.g. `Payout`) |
+| `tableName` | string | Database table name (e.g. `payouts`) |
+| `initializer` | string | FQCN of the initializer to register in |
+
+### Command
+
+```bash
+phpnomad make --from=database-datastore '{"name":"Payout","tableName":"payouts","initializer":"App\\AppInit"}'
+```
+
+### Generated files
+
+The composite recipe creates seven files across its five child recipes:
+
+| File | Source recipe |
+|------|-------------|
+| `lib/Models/Payout.php` | model |
+| `lib/Adapters/PayoutAdapter.php` | model-adapter |
+| `lib/Tables/PayoutsTable.php` | table |
+| `lib/Datastores/Payout/PayoutDatastore.php` | datastore |
+| `lib/Datastores/Payout/PayoutDatastoreHandler.php` | datastore |
+| `lib/Datastores/Payout/PayoutDatastoreImpl.php` | datastore |
+| `lib/Datastores/Payout/PayoutDatabaseHandler.php` | database-handler |
+
+### Registration
+
+Two registrations are performed in the initializer's `getClassDefinitions()` method:
+
+```php
+PayoutDatastore::class => PayoutDatastoreImpl::class,
+PayoutDatastoreHandler::class => PayoutDatabaseHandler::class,
+```
+
+Both use the `HasClassDefinitions` interface.
+
+### How it works
+
+The `database-datastore` recipe does not define its own `files` or `registrations`. Instead, it defines a `recipes` array that references the five child recipes and maps variables from the parent into each child. The child recipes execute sequentially, and each one creates its files and performs its registrations independently. See [Recipe Stacking](#recipe-stacking) for how this mechanism works.
+
+---
+
+## Recipe stacking
+
+Recipe stacking lets a recipe reference other recipes instead of (or in addition to) defining its own files. A parent recipe declares a `recipes` array, and each entry names a child recipe and maps variables from the parent scope into the child's variable scope.
+
+### How it works
+
+When the scaffolder encounters a `recipes` array in a recipe spec, it processes each child entry in order:
+
+1. The child recipe is loaded by name (the same lookup used for `--from`).
+2. The parent's variables are merged with any overrides specified in the child entry's `vars` object.
+3. The `rootNamespace` variable is automatically computed from the project's PSR-4 config, giving child recipes the base namespace they need to construct FQCNs for cross-references.
+4. The child recipe runs through the full pipeline: preflight validation, file generation, and registration.
+5. Execution continues with the next child.
+
+This means composite recipes get all the same behavior as running each child recipe individually. Preflight validation, duplicate detection, and auto-registration all apply normally.
+
+### The rootNamespace variable
+
+When recipes are stacked, child recipes often need to reference classes created by sibling recipes. For example, the `database-handler` recipe needs the FQCN of the model, model adapter, and table classes. The `rootNamespace` variable is auto-computed from the project's PSR-4 autoload configuration in `composer.json` and made available to all child recipes. A project with `"App\\": "lib/"` in its PSR-4 config would get `rootNamespace` set to `App`.
+
+### Example
+
+The `database-datastore` composite recipe looks roughly like this:
+
+```json
+{
+  "name": "database-datastore",
+  "description": "Creates a full database-backed datastore with model, adapter, table, and handlers",
+  "vars": {
+    "name": { "type": "string", "description": "Feature name in PascalCase" },
+    "tableName": { "type": "string", "description": "Database table name" },
+    "initializer": { "type": "string", "description": "FQCN of the initializer" }
+  },
+  "recipes": [
+    { "recipe": "model", "vars": {} },
+    { "recipe": "model-adapter", "vars": { "model": "{{rootNamespace}}\\Models\\{{name}}" } },
+    { "recipe": "table", "vars": {} },
+    { "recipe": "datastore", "vars": {} },
+    {
+      "recipe": "database-handler",
+      "vars": {
+        "handlerInterface": "{{rootNamespace}}\\Datastores\\{{name}}\\{{name}}DatastoreHandler",
+        "model": "{{rootNamespace}}\\Models\\{{name}}",
+        "modelAdapter": "{{rootNamespace}}\\Adapters\\{{name}}Adapter",
+        "table": "{{rootNamespace}}\\Tables\\{{name}}Table"
+      }
+    }
+  ]
+}
+```
+
+Running `phpnomad make --from=database-datastore '{"name":"Payout","tableName":"payouts","initializer":"App\\AppInit"}'` executes all five child recipes in sequence, producing seven files and two registrations from a single command.
 
 ---
 
