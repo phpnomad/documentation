@@ -654,6 +654,7 @@
 <li><strong>Pre-flight validation</strong> checks requirements against the project index before any files are generated.</li>
 <li><strong>Per-file var overrides</strong> let the same template produce different output in multi-file recipes.</li>
 <li><strong>Auto-computed var transforms</strong> derive <code>nameLower</code> and <code>nameSnake</code> from user-supplied variables automatically.</li>
+<li><strong>Recipe stacking</strong> lets composite recipes reference other recipes, scaffolding entire features from a single command.</li>
 </ul>
 <hr />
 <h2 id="how-it-works">How it works</h2>
@@ -779,6 +780,14 @@ class {{name}} implements CanHandle
 <p>For example, a hypothetical <code>crud</code> recipe could create a datastore interface, a database handler, four REST controllers (create, read, update, delete), an event class, and a listener, then register all of them in the appropriate initializers. The user runs one command and gets a complete, wired-up feature skeleton.</p>
 <p>Per-file var overrides make this possible. The <code>files[].vars</code> object lets you set different variable values for each file while still reusing the same template. A recipe that generates both a <code>CreatePostController</code> and an <code>UpdatePostController</code> from the same controller template can override the <code>name</code> var per file.</p>
 <hr />
+<h2 id="recipe-stacking">Recipe stacking</h2>
+<p>Beyond multi-file recipes, the scaffolder supports recipe stacking. A composite recipe does not define its own files and registrations. Instead, it declares a <code>recipes</code> array that references other recipes by name. Each child recipe executes in sequence with variables flowing from the parent scope.</p>
+<p>This is the mechanism behind the <code>database-datastore</code> recipe, which stacks five child recipes (model, model-adapter, table, datastore, database-handler) to produce seven files and two initializer registrations from a single command:</p>
+<pre><code class="language-bash">phpnomad make --from=database-datastore '{&quot;name&quot;:&quot;Payout&quot;,&quot;tableName&quot;:&quot;payouts&quot;,&quot;initializer&quot;:&quot;App\\AppInit&quot;}'
+</code></pre>
+<p>Recipe stacking keeps individual recipes small and reusable. You can run <code>phpnomad make --from=model</code> on its own, or let <code>database-datastore</code> invoke it as part of a larger operation. The child recipes do not know or care whether they are running standalone or as part of a stack.</p>
+<p>The <code>rootNamespace</code> variable is auto-computed from the project's PSR-4 config and injected into child recipes so they can construct FQCNs for classes created by sibling recipes. For the full specification, including how variables are inherited and overridden, see <a href="recipe-spec#recipe-stacking">Recipe Spec</a>.</p>
+<hr />
 <h2 id="usage">Usage</h2>
 <p>The scaffolder is invoked through the <code>make</code> command. You specify a recipe name (or path) and pass variables as a JSON object:</p>
 <pre><code class="language-bash">phpnomad make --from=listener '{&quot;name&quot;:&quot;SendWelcomeEmail&quot;,&quot;event&quot;:&quot;App\\Events\\UserCreated&quot;,&quot;initializer&quot;:&quot;App\\AppInit&quot;}'
@@ -806,7 +815,7 @@ Done: 1 file(s) created, 1 registration(s) performed.
 <h2 id="whats-next">What's next</h2>
 <ul>
 <li><strong><a href="recipe-spec">Recipe Spec</a></strong> covers the full JSON schema for recipe files, including all fields, types, and validation rules.</li>
-<li><strong><a href="built-in-recipes">Built-in Recipes</a></strong> documents the bundled recipes (listener, event, command, controller) with examples for each.</li>
+<li><strong><a href="built-in-recipes">Built-in Recipes</a></strong> documents all 16 bundled recipes, from single-file recipes like listener and facade to composite recipes like database-datastore.</li>
 <li><strong><a href="../commands/introduction">Commands</a></strong> covers the <code>make</code> command and other CLI commands.</li>
 <li><strong><a href="../indexer/introduction">Indexer</a></strong> explains how the project index is built and how it feeds pre-flight validation.</li>
 </ul>

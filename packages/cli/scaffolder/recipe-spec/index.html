@@ -681,10 +681,18 @@
       &quot;key&quot;: &quot;{{event}}&quot;,
       &quot;value&quot;: &quot;{{namespace}}\\{{name}}&quot;
     }
+  ],
+  &quot;recipes&quot;: [
+    {
+      &quot;recipe&quot;: &quot;recipeName&quot;,
+      &quot;vars&quot;: {
+        &quot;childVar&quot;: &quot;{{parentVar}}&quot;
+      }
+    }
   ]
 }
 </code></pre>
-<p>Every field except <code>name</code> is optional. A recipe with just <code>name</code> and <code>files</code> is perfectly valid. The sections below cover each field in detail.</p>
+<p>Every field except <code>name</code> is optional. A recipe with just <code>name</code> and <code>files</code> is perfectly valid. A recipe can define <code>files</code> and <code>registrations</code>, or <code>recipes</code> (for stacking), or both. The sections below cover each field in detail.</p>
 <hr />
 <h2 id="top-level-fields">Top-Level Fields</h2>
 <h3 id="name-required">name (required)</h3>
@@ -846,6 +854,47 @@
 <li>Checks for duplicates and skips if the entry is already present.</li>
 </ol>
 <p>If the method exists but its return statement is not a simple array literal, the scaffolder reports an error and provides the manual entry for you to add yourself.</p>
+<h3 id="recipes">recipes</h3>
+<p>An array of child recipe references for recipe stacking. Each entry names a recipe to execute and provides variable mappings from the parent scope into the child scope.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>recipe</code></td>
+<td>yes</td>
+<td>Name of the child recipe (built-in name or file path)</td>
+</tr>
+<tr>
+<td><code>vars</code></td>
+<td>no</td>
+<td>Variable overrides to pass to the child recipe</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-json">{
+  &quot;recipes&quot;: [
+    {
+      &quot;recipe&quot;: &quot;model&quot;,
+      &quot;vars&quot;: {}
+    },
+    {
+      &quot;recipe&quot;: &quot;model-adapter&quot;,
+      &quot;vars&quot;: {
+        &quot;model&quot;: &quot;{{rootNamespace}}\\Models\\{{name}}&quot;
+      }
+    }
+  ]
+}
+</code></pre>
+<p>When the scaffolder encounters a <code>recipes</code> array, it processes each child entry in order. The parent's user-provided variables flow into each child automatically. The <code>vars</code> object on each entry can override or add variables specific to that child. Child recipes run through the full pipeline independently, including preflight validation, file generation, and registration.</p>
+<p>A recipe can have both <code>files</code>/<code>registrations</code> and <code>recipes</code>. The recipe's own files are generated first, then the child recipes execute.</p>
+<p>See <a href="#recipe-stacking">Recipe Stacking</a> for the full explanation, including the <code>rootNamespace</code> auto-computed variable.</p>
 <hr />
 <h2 id="registration-types">Registration Types</h2>
 <p>Registrations come in two flavors: <code>list</code> and <code>map</code>. The type determines how the entry is added to the method's return array.</p>
@@ -920,7 +969,19 @@
 </tbody>
 </table>
 <p>These transforms apply to all user-provided variables, not just <code>name</code>. If you define a variable called <code>event</code> with the value <code>UserCreated</code>, you also get <code>{{eventLower}}</code> (<code>userCreated</code>) and <code>{{eventSnake}}</code> (<code>user_created</code>).</p>
+<h4 id="the-short-transform">The Short transform</h4>
+<p>For variables that contain a fully qualified class name (FQCN), the scaffolder provides a <code>Short</code> transform that extracts the short class name. If you provide <code>model=App\\Models\\Payout</code>, then <code>{{modelShort}}</code> resolves to <code>Payout</code>.</p>
+<p>This is particularly useful in templates that need both a <code>use</code> statement (which uses the full FQCN) and a type reference (which uses just the short name). For example, a template might contain:</p>
+<pre><code class="language-php">use {{model}};
+
+class {{name}} {
+    public function toModel(): {{modelShort}} { ... }
+}
+</code></pre>
+<p>The <code>Short</code> transform applies to any variable whose value contains a backslash, indicating it is a FQCN.</p>
+<h3 id="auto-computed-namespace-variables">Auto-Computed Namespace Variables</h3>
 <p>The <code>{{namespace}}</code> variable is always available and is computed per-file based on where the file will be written. For registrations, the namespace is taken from the first file in the recipe.</p>
+<p>The <code>{{rootNamespace}}</code> variable is auto-computed from the project's PSR-4 autoload configuration in <code>composer.json</code>. For a project with <code>&quot;App\\&quot;: &quot;lib/&quot;</code> in its autoload config, <code>rootNamespace</code> resolves to <code>App</code>. This variable is especially important in recipe stacking, where child recipes need to construct FQCNs for classes created by sibling recipes. See <a href="#recipe-stacking">Recipe Stacking</a> for details.</p>
 <h3 id="recursive-resolution">Recursive Resolution</h3>
 <p>Variable values can reference other variables using <code>{{var}}</code> syntax. The resolver runs up to 10 passes to handle chains of references. For example:</p>
 <pre><code class="language-json">{
@@ -1140,6 +1201,62 @@
 <p>Custom recipes reference templates by name in the <code>template</code> field. These names correspond to <code>.php.tpl</code> files in the CLI's <code>lib/Scaffolder/Templates/</code> directory. When building custom recipes, you can reuse any of the built-in template names: <code>listener</code>, <code>event</code>, <code>command</code>, and <code>controller</code>.</p>
 <p>If you need a template that does not exist yet, you will need to add it to the templates directory or extend the scaffolder.</p>
 <hr />
+<h2 id="recipe-stacking">Recipe Stacking</h2>
+<p>Recipe stacking lets a parent recipe delegate to other recipes, composing larger scaffolding operations from smaller, reusable building blocks. Instead of duplicating file and registration definitions, a composite recipe references existing recipes by name and passes variables into them.</p>
+<h3 id="how-it-works">How it works</h3>
+<p>A recipe declares a <code>recipes</code> array. Each entry has a <code>recipe</code> field (the child recipe name) and an optional <code>vars</code> object (variable overrides for that child). When the scaffolder encounters this array:</p>
+<ol>
+<li>Each child recipe is loaded by name using the same resolution rules as <code>--from</code> (built-in lookup or file path).</li>
+<li>The parent's user-provided variables are merged with the child entry's <code>vars</code> overrides. The overrides take precedence.</li>
+<li>The <code>rootNamespace</code> variable is injected automatically so child recipes can construct FQCNs for classes created by sibling recipes.</li>
+<li>The child recipe runs through the full engine pipeline: preflight validation, variable resolution, template rendering, file writing, and auto-registration.</li>
+<li>The scaffolder moves to the next child entry.</li>
+</ol>
+<p>Because each child recipe runs independently, all the normal behaviors apply. Preflight validation catches conflicts. Duplicate detection prevents double-registration. The format-preserving printer keeps initializer files clean.</p>
+<h3 id="variable-flow">Variable flow</h3>
+<p>Variables flow from parent to child in two ways:</p>
+<ul>
+<li><strong>Inherited variables.</strong> All variables provided by the user to the parent recipe are available to every child recipe automatically. If the user passes <code>name=Payout</code>, every child recipe receives <code>name=Payout</code>.</li>
+<li><strong>Override variables.</strong> The <code>vars</code> object on a child entry can override inherited variables or add new ones. These overrides support <code>{{var}}</code> placeholders that are resolved against the parent's variable scope.</li>
+</ul>
+<p>This means a child recipe like <code>database-handler</code> can receive computed values such as <code>&quot;model&quot;: &quot;{{rootNamespace}}\\Models\\{{name}}&quot;</code>, which resolves to the FQCN of the model class created by a sibling <code>model</code> recipe earlier in the sequence.</p>
+<h3 id="complete-example-database-datastore">Complete example: database-datastore</h3>
+<p>The <code>database-datastore</code> recipe is the canonical example of recipe stacking. It composes five child recipes to create a full database-backed datastore from a single command.</p>
+<pre><code class="language-json">{
+  &quot;name&quot;: &quot;database-datastore&quot;,
+  &quot;description&quot;: &quot;Creates a full database-backed datastore with model, adapter, table, and handlers&quot;,
+  &quot;vars&quot;: {
+    &quot;name&quot;: { &quot;type&quot;: &quot;string&quot;, &quot;description&quot;: &quot;Feature name in PascalCase (e.g. Payout)&quot; },
+    &quot;tableName&quot;: { &quot;type&quot;: &quot;string&quot;, &quot;description&quot;: &quot;Database table name (e.g. payouts)&quot; },
+    &quot;initializer&quot;: { &quot;type&quot;: &quot;string&quot;, &quot;description&quot;: &quot;FQCN of the initializer to register in&quot; }
+  },
+  &quot;recipes&quot;: [
+    { &quot;recipe&quot;: &quot;model&quot;, &quot;vars&quot;: {} },
+    { &quot;recipe&quot;: &quot;model-adapter&quot;, &quot;vars&quot;: { &quot;model&quot;: &quot;{{rootNamespace}}\\Models\\{{name}}&quot; } },
+    { &quot;recipe&quot;: &quot;table&quot;, &quot;vars&quot;: {} },
+    { &quot;recipe&quot;: &quot;datastore&quot;, &quot;vars&quot;: {} },
+    {
+      &quot;recipe&quot;: &quot;database-handler&quot;,
+      &quot;vars&quot;: {
+        &quot;handlerInterface&quot;: &quot;{{rootNamespace}}\\Datastores\\{{name}}\\{{name}}DatastoreHandler&quot;,
+        &quot;model&quot;: &quot;{{rootNamespace}}\\Models\\{{name}}&quot;,
+        &quot;modelAdapter&quot;: &quot;{{rootNamespace}}\\Adapters\\{{name}}Adapter&quot;,
+        &quot;table&quot;: &quot;{{rootNamespace}}\\Tables\\{{name}}Table&quot;
+      }
+    }
+  ]
+}
+</code></pre>
+<p>Running this with <code>name=Payout</code>, <code>tableName=payouts</code>, and <code>initializer=App\\AppInit</code> executes the following sequence:</p>
+<ol>
+<li><strong>model</strong> creates <code>lib/Models/Payout.php</code>.</li>
+<li><strong>model-adapter</strong> creates <code>lib/Adapters/PayoutAdapter.php</code>, receiving <code>model=App\Models\Payout</code> from the override.</li>
+<li><strong>table</strong> creates <code>lib/Tables/PayoutsTable.php</code>, receiving <code>tableName=payouts</code> from the inherited variables.</li>
+<li><strong>datastore</strong> creates three files under <code>lib/Datastores/Payout/</code> and registers the datastore binding.</li>
+<li><strong>database-handler</strong> creates <code>lib/Datastores/Payout/PayoutDatabaseHandler.php</code> and registers the handler binding, receiving FQCNs for all sibling classes through its override variables.</li>
+</ol>
+<p>The result is seven files and two initializer registrations from a single command.</p>
+<hr />
 <h2 id="field-reference-summary">Field Reference Summary</h2>
 <table>
 <thead>
@@ -1264,6 +1381,24 @@
 <td>string</td>
 <td>no</td>
 <td>Value to register</td>
+</tr>
+<tr>
+<td><code>recipes</code></td>
+<td>array</td>
+<td>no</td>
+<td>Child recipes for recipe stacking</td>
+</tr>
+<tr>
+<td><code>recipes[].recipe</code></td>
+<td>string</td>
+<td>yes</td>
+<td>Name of the child recipe (built-in or file path)</td>
+</tr>
+<tr>
+<td><code>recipes[].vars</code></td>
+<td>object</td>
+<td>no</td>
+<td>Variable overrides to pass to the child recipe</td>
 </tr>
 </tbody>
 </table>
