@@ -469,3 +469,5 @@ $serviceProvider->getQueryBuilder()  // Doesn't exist
 * [Database Handlers](/packages/database/handlers/introduction) — handlers that use the provider
 * [Query Building](/packages/database/query-building) — using QueryBuilder and ClauseBuilder
 * [Caching and Events](/packages/database/caching-and-events) — using CacheableService and EventStrategy
+* [Logger Package](/packages/logger/introduction) — LoggerStrategy interface documentation
+* [Event Package](/packages/event/introduction) — EventStrategy interface documentation

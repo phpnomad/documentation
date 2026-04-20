@@ -116,3 +116,10 @@ confusion and unintended side effects.
 * Be explicit about **which interceptors run where**—avoid magical or hidden behaviors.
 
 Following these practices ensures interceptors stay predictable, reusable, and maintainable over time.
+
+---
+
+## Related Documentation
+
+- [Logger Package](../../logger/introduction.md) - LoggerStrategy interface used for request logging
+- [Included Interceptors](./included-interceptors/introduction.md) - Pre-built interceptors in PHPNomad

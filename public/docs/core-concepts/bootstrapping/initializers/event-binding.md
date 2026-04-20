@@ -1,5 +1,10 @@
 # Event Bindings
 
+> **Related interfaces:**
+> - [HasEventBindings](/packages/event/interfaces/has-event-bindings) — The interface you implement
+> - [ActionBindingStrategy](/packages/event/interfaces/action-binding-strategy) — Executes the bindings
+> - [Event](/packages/event/interfaces/event) — Creating event classes
+
 ## What are Event Bindings?
 
 Event bindings are like adapters that connect your application's events to a platform's native event system. Think of
@@ -230,3 +235,17 @@ Remember:
 - Use service classes for complex transformations
 
 With event bindings, your application can easily "speak" to any platform while keeping its own code clean and portable.
+
+---
+
+## Related Documentation
+
+### Event Package Interfaces
+- [HasEventBindings](/packages/event/interfaces/has-event-bindings) — Detailed interface documentation
+- [ActionBindingStrategy](/packages/event/interfaces/action-binding-strategy) — How bindings are executed
+- [Event](/packages/event/interfaces/event) — Creating event classes that bindings produce
+
+### Related Guides
+- [Event Listeners](event-listeners) — Handling events once they're bound
+- [Event Package Overview](/packages/event/introduction) — Full event system documentation
+- [Best Practices](/packages/event/patterns/best-practices) — Transformer patterns, testing strategies

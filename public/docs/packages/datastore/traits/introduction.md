@@ -264,3 +264,4 @@ To understand how handlers work and what they're responsible for, see:
 - [Core Implementation](/packages/datastore/core-implementation) — when to use traits vs manual implementation
 - [Database Handlers](/packages/database/handlers/introduction) — the handler side of the delegation contract
 - [Datastore Interfaces](/packages/datastore/interfaces/introduction) — the public contracts these traits implement
+- [Logger Package](/packages/logger/introduction) — LoggerStrategy for logging in decorators
