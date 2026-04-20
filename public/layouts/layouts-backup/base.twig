@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ title }}</title>
+    <link rel="stylesheet" href="/public/assets/pico.min.css">
+    <link rel="stylesheet" href="/public/assets/prism.css">
+    <link rel="stylesheet" href="/public/assets/style.css">
+    <script src="/public/assets/prism.js"></script>
+</head>
+<body>
+<header>
+    {% include 'components/header.twig' %}
+</header>
+
+<div class="docs-layout">
+    <aside class="docs-sidebar">
+        {% block sidebar %}
+            <a href="/"><img src="/public/assets/logo.png" alt="PHPNomad Logo"/></a>
+            {% include 'components/navigation.twig' %}
+        {% endblock %}
+    </aside>
+    <main class="docs-content">
+        {% block content %}{% endblock %}
+    </main>
+</div>
+
+<footer>
+    {% include 'components/footer.twig' %}
+</footer>
+</body>
+</html>
+
