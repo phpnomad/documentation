@@ -44,24 +44,40 @@ CREATE TABLE wp_posts (
 
 ## Automatic Timestamp Behavior
 
-When you insert a new record, the database automatically sets `date_created`:
+When you insert a new record, the database automatically sets `dateCreated`:
 
 ```php
 // Create and save new post
-$newPost = new Post(null, 'My Title', 'Content', 123, null);
-$savedPost = $handler->save($newPost);
+$savedPost = $handler->create([
+    'title' => 'My Title',
+    'content' => 'Content',
+    'authorId' => 123,
+]);
 
-// Database automatically set date_created
-echo $savedPost->dateCreated->format('Y-m-d H:i:s');
+// Database automatically set dateCreated
+echo $savedPost->dateCreated;
 // Output: 2024-01-15 14:23:45
 ```
 
 **Generated INSERT:**
 ```sql
-INSERT INTO wp_posts (title, content, author_id)
-VALUES ('My Title', 'Content', 123);
--- date_created is automatically set to current timestamp
+INSERT INTO wp_posts (title, content, authorId, dateCreated)
+VALUES ('My Title', 'Content', 123, '2024-01-15 14:23:45');
+-- The framework supplies dateCreated via a PHP-side default; the DB-side
+-- DEFAULT CURRENT_TIMESTAMP remains as a backstop for inserts that bypass
+-- the framework.
 ```
+
+## PHP-Side Default (since 2.2.0)
+
+As of `phpnomad/db` 2.2.0, the factory configures the column with a `phpDefault` callable as well as the DB-side `DEFAULT CURRENT_TIMESTAMP` clause. The callable returns a current MySQL-format datetime string (`Y-m-d H:i:s`) and is invoked by `WithDatastoreHandlerMethods::create()` for any insert where the caller did not supply `dateCreated` explicitly.
+
+Two consequences:
+
+1. The value that lands in the row also lands in the in-memory `DataModel` returned from `create()` — without re-reading the row back from the database. This is what makes `create()` safe behind read/write-split routers (ProxySQL, MaxScale, RDS Proxy, Aurora) that previously had a small chance of routing the post-insert `SELECT` to a replica that hadn't yet replicated the write.
+2. Callers that do supply `dateCreated` win — the PHP default only fills in for absent columns. Backfills, imports, and tests that need to assert specific timestamps continue to work.
+
+The DB-side `DEFAULT CURRENT_TIMESTAMP` clause is retained so rows inserted outside the framework (raw SQL, other applications, replication tooling) still get a sensible value.
 
 ## Why Use This Factory?
 

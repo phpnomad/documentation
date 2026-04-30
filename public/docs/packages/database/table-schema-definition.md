@@ -241,6 +241,24 @@ new Column('status', 'ENUM', ['draft', 'published', 'archived'], 'DEFAULT "draft
 'NOT NULL UNIQUE'  // Unique constraint
 ```
 
+### PHP-Side Defaults
+
+`Column` exposes a fluent `withPhpDefault(callable): self` setter for declaring a default the framework supplies at `create()` time, rather than relying on the database's own `DEFAULT` clause.
+
+```php
+use DateTimeImmutable;
+use PHPNomad\Database\Factories\Column;
+
+(new Column('createdAt', 'TIMESTAMP', null, 'NOT NULL DEFAULT CURRENT_TIMESTAMP'))
+    ->withPhpDefault(static fn (): string => (new DateTimeImmutable())->format('Y-m-d H:i:s'));
+```
+
+The callable runs during `WithDatastoreHandlerMethods::create()` for any column the caller did not include in their attributes. Its return value is merged into the INSERT and into the in-memory model that `create()` returns — so PHP-side defaults flow into both the row and the model without a post-insert read-back.
+
+DB-side `DEFAULT` and `withPhpDefault()` are not mutually exclusive. Keep the DB-side default as a backstop for inserts that bypass the framework (raw SQL, replication tooling, other applications); the PHP-side default ensures the value is also present on the `DataModel` returned from `create()`.
+
+PHP-side defaults are a create-time mechanism — they do not re-apply on `updateCompound()`. If you need a column (e.g. `dateModified`) to advance on update, pass it explicitly in the update payload.
+
 ---
 
 ## Column Factories
@@ -272,7 +290,7 @@ id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY
 
 ### DateCreatedFactory
 
-Creates timestamp columns with automatic creation date:
+Creates a `dateCreated` timestamp column with both a DB-side `DEFAULT CURRENT_TIMESTAMP` and a matching PHP-side default (since 2.2.0):
 
 ```php
 use PHPNomad\Database\Factories\Columns\DateCreatedFactory;
@@ -280,21 +298,23 @@ use PHPNomad\Database\Factories\Columns\DateCreatedFactory;
 public function getColumns(): array
 {
     return [
-        (new DateCreatedFactory())->toColumn(),  // Creates 'created_at'
+        (new DateCreatedFactory())->toColumn(),  // Creates 'dateCreated'
     ];
 }
 ```
 
 **Generates:**
 ```sql
-created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+dateCreated TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 ```
+
+The PHP-side default ensures the value is present on the model returned from `create()` without a post-insert read-back. See [DateCreatedFactory](/packages/database/included-factories/date-created-factory) for details.
 
 ---
 
 ### DateModifiedFactory
 
-Creates timestamp columns that auto-update on record modification:
+Creates a `dateModified` timestamp column with both a DB-side `DEFAULT CURRENT_TIMESTAMP` and a matching PHP-side default (since 2.2.0):
 
 ```php
 use PHPNomad\Database\Factories\Columns\DateModifiedFactory;
@@ -302,15 +322,17 @@ use PHPNomad\Database\Factories\Columns\DateModifiedFactory;
 public function getColumns(): array
 {
     return [
-        (new DateModifiedFactory())->toColumn(),  // Creates 'updated_at'
+        (new DateModifiedFactory())->toColumn(),  // Creates 'dateModified'
     ];
 }
 ```
 
 **Generates:**
 ```sql
-updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL
+dateModified TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 ```
+
+The PHP-side default fills the column at create time. To advance the timestamp on update, pass `dateModified` explicitly in the `updateCompound()` payload — see [DateModifiedFactory](/packages/database/included-factories/date-modified-factory) for the recommended pattern.
 
 ---
 

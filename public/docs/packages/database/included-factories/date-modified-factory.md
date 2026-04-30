@@ -47,38 +47,40 @@ CREATE TABLE wp_posts (
 
 ## Automatic Timestamp Behavior
 
-The `date_modified` column automatically updates on every UPDATE:
+```php
+// Create new post — both timestamps populated by the create() flow
+$savedPost = $handler->create([
+    'title' => 'Title',
+    'content' => 'Content',
+    'authorId' => 123,
+]);
+
+echo $savedPost->dateCreated;
+// Output: 2024-01-15 14:23:45
+echo $savedPost->dateModified;
+// Output: 2024-01-15 14:23:45
+```
+
+**Generated INSERT:**
+```sql
+INSERT INTO wp_posts (title, content, authorId, dateCreated, dateModified)
+VALUES ('Title', 'Content', 123, '2024-01-15 14:23:45', '2024-01-15 14:23:45');
+```
+
+Updates that should bump `dateModified` need to pass it explicitly in the update payload — the trait does not currently inject a fresh PHP-side default on update, and the column attributes (as emitted by the factory) do not include `ON UPDATE CURRENT_TIMESTAMP`. The simplest pattern is to fill it in at your application's update boundary:
 
 ```php
-// Create new post
-$newPost = new Post(null, 'Title', 'Content', 123, null);
-$savedPost = $handler->save($newPost);
-
-// Initial timestamps are the same
-echo $savedPost->dateCreated->format('Y-m-d H:i:s');
-// Output: 2024-01-15 14:23:45
-echo $savedPost->dateModified->format('Y-m-d H:i:s');
-// Output: 2024-01-15 14:23:45
-
-// Update the post later
-sleep(5);
-$savedPost->title = 'New Title';
-$updatedPost = $handler->save($savedPost);
-
-// date_created unchanged, date_modified updated
-echo $updatedPost->dateCreated->format('Y-m-d H:i:s');
-// Output: 2024-01-15 14:23:45 (unchanged)
-echo $updatedPost->dateModified->format('Y-m-d H:i:s');
-// Output: 2024-01-15 14:23:50 (updated)
+$handler->updateCompound(['id' => 123], [
+    'title' => 'New Title',
+    'dateModified' => (new DateTimeImmutable())->format('Y-m-d H:i:s'),
+]);
 ```
 
-**Generated UPDATE:**
-```sql
-UPDATE wp_posts
-SET title = 'New Title', content = 'Content'
-WHERE id = 123;
--- date_modified is automatically set to current timestamp
-```
+## PHP-Side Default (since 2.2.0)
+
+As of `phpnomad/db` 2.2.0, the factory configures the column with a `phpDefault` callable in addition to the DB-side `DEFAULT CURRENT_TIMESTAMP` clause. The callable returns a current MySQL-format datetime string (`Y-m-d H:i:s`) and is invoked by `WithDatastoreHandlerMethods::create()` for any insert where the caller did not supply `dateModified` explicitly. The value that lands in the row also lands in the in-memory `DataModel` returned from `create()`, without a post-insert re-read.
+
+The PHP-side default only fills the column at create time. It does not auto-bump on `updateCompound()` — see the previous section for the recommended pattern when an update should advance the timestamp.
 
 ## Why Use This Factory?
 

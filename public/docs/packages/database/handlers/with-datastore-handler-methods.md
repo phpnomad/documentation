@@ -98,32 +98,47 @@ LIMIT 10 OFFSET 20
 
 ---
 
-### `save(Model $item): Model`
+### `create(array $attributes): DataModel`
 
 **What it does:**
-1. Converts model to array via adapter
-2. Checks if model has primary key:
-   - **If NO key** → INSERT new record
-   - **If HAS key** → UPDATE existing record
-3. Executes query via QueryStrategy
-4. Invalidates cache for this record
-5. Broadcasts event:
-   - `RecordCreated` for INSERT
-   - `RecordUpdated` for UPDATE
-6. Returns model with ID populated
+1. Strips identifiable fields (auto-increment id columns) when the model implements `HasSingleIntIdentity`, or guards against duplicate-identity inserts on compound-key tables
+2. Guards against duplicate inserts on any column declared `UNIQUE`
+3. **Applies PHP-side defaults** — for every column on the table whose declaration includes `withPhpDefault(callable)`, fills the column in if the caller did not supply it
+4. Executes the INSERT via QueryStrategy, which returns the row's identity (the auto-increment id, or the full compound key)
+5. **Hydrates the returned model from the merged `$attributes + $ids`** — no post-insert `SELECT`
+6. Pre-warms the cache with the hydrated model so the next `find()` / `findFromCompound()` for this row short-circuits
+7. Broadcasts `RecordCreated`
+8. Returns the model
 
-**INSERT SQL:**
+**Generated SQL:**
 ```sql
-INSERT INTO wp_posts (title, content, author_id, published_date)
-VALUES ('Title', 'Content', 123, '2024-01-01 12:00:00')
+INSERT INTO wp_posts (title, content, authorId, dateCreated, dateModified)
+VALUES ('Title', 'Content', 123, '2024-01-01 12:00:00', '2024-01-01 12:00:00')
 ```
 
-**UPDATE SQL:**
+**Why no read-back?** A post-insert `SELECT` against the row you just wrote races every form of write/read split a database backend might have — managed-MySQL routers (ProxySQL, MaxScale, RDS Proxy, Aurora), MongoDB read-preference replicas, search-index refresh windows. As of `phpnomad/db` 2.2.0 the trait hydrates the model from the attributes the caller passed plus the identity returned by the insert, eliminating the second operation entirely. See the [DateCreatedFactory docs](/packages/database/included-factories/date-created-factory) for the PHP-side default mechanism that makes this safe for columns previously populated only by `DEFAULT CURRENT_TIMESTAMP`.
+
+**Contract for callers:** any column whose value should appear on the model returned from `create()` must either be passed in `$attributes` or come from a column declared with `withPhpDefault()`. Columns relying solely on a DB-side `DEFAULT`, on triggers, or on `GENERATED` clauses will be `null` on the returned model even though the DB row has the value — until you re-read with `findFromCompound()`.
+
+---
+
+### `updateCompound(array $ids, array $attributes): void`
+
+**What it does:**
+1. Loads the existing record (throws `RecordNotFoundException` if missing)
+2. Guards against the update creating a duplicate on any UNIQUE column
+3. Executes the UPDATE via QueryStrategy
+4. Invalidates the cache for the row
+5. Broadcasts `RecordUpdated`
+
+**Generated SQL:**
 ```sql
 UPDATE wp_posts 
 SET title = 'New Title', content = 'New Content'
 WHERE id = 123
 ```
+
+PHP-side defaults are **not** re-applied on update; they are a create-time mechanism. If your application semantics require `dateModified` (or any other column) to advance on every update, pass it explicitly in `$attributes`.
 
 ---
 
